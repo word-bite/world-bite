@@ -13,6 +13,7 @@ model User {
   emailVerified         Boolean   @default(false)
   verificationCode      String?
   verificationCodeExpiry DateTime?
+  verificationAttempts  Int       @default(0)
   name                  String?
   cpf                   String?   @unique
   isActive              Boolean   @default(true)
