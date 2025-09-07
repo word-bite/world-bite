@@ -1,50 +1,50 @@
-import React, { useState } from "react";
+import React from "react";
 import "./App.css";
 
 export default function App() {
-  const [showLogin, setShowLogin] = useState(false);
-  const [showRegister, setShowRegister] = useState(false);
-
   return (
-    <div className="app">
-      <div className="content">
-        <h1 className="headline">Venha provar o mundo</h1>
+    <div className="solid-bg one-bg-img">
+      {/* Logo redonda no canto superior esquerdo */}
+      <div className="logo-top-left">
         <img
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/600px-The_Earth_seen_from_Apollo_17.jpg"
-          alt="Planeta Terra"
-          className="earth"
+          src="../public/logompng.jpeg"
+          alt="Logo"
         />
-        <div className="buttons">
-          <button onClick={() => setShowLogin(true)}>Entrar</button>
-          <button onClick={() => setShowRegister(true)}>Cadastro</button>
+      </div>
+      <div className="bg-img" aria-hidden="true"></div>
+      <div className="bg-img-country1" aria-hidden="true"></div>
+      <div className="bg-img-country2" aria-hidden="true"></div>
+      <div className="center-container">
+        <div className="login-card">
+          <h1 className="login-headline">Entre e descubra um novo mundo</h1>
+          <button className="login-btn google">
+            <img
+              src="https://www.gstatic.com/marketing-cms/assets/images/d5/dc/cfe9ce8b4425b410b49b7f2dd3f3/g.webp=s96-fcrop64=1,00000000ffffffff-rw"
+              alt="Google"
+            />
+            Continuar com Google
+          </button>
+          <button className="login-btn facebook">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png"
+              alt="Facebook"
+            />
+            Continuar com Facebook
+          </button>
+          <div className="divider">
+            <span>ou</span>
+          </div>
+          <div className="login-btn-row">
+            <button className="login-btn small">Entrar com Celular</button>
+            <button className="login-btn small">Entrar com E-mail</button>
+          </div>
+          <p className="login-footer">
+            Ao continuar, você concorda com os{" "}
+            <a href="#">Termos de Uso</a> e a{" "}
+            <a href="#">Política de Privacidade</a>.
+          </p>
         </div>
       </div>
-
-      {showLogin && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2>Login</h2>
-            <input type="email" placeholder="E-mail" />
-            <input type="password" placeholder="Senha" />
-            <button>Entrar</button>
-            <span onClick={() => setShowLogin(false)}>Fechar</span>
-          </div>
-        </div>
-      )}
-
-      {showRegister && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2>Cadastro</h2>
-            <input type="text" placeholder="Nome" />
-            <input type="email" placeholder="E-mail" />
-            <input type="password" placeholder="Senha" />
-            <input type="password" placeholder="Confirmar Senha" />
-            <button>Cadastrar</button>
-            <span onClick={() => setShowRegister(false)}>Fechar</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
