@@ -1,0 +1,12 @@
+.home-card {
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+  padding: 40px 32px 32px 32px;
+  min-width: 320px;
+  max-width: 400px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
