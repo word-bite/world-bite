@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ma/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Restaurante {
+  id                    Int      @id @default(autoincrement())
+  nome                  String   @db.VarChar(100)
+  cnpj                  String   @unique @db.VarChar(14)
+  descricao             String?  @db.Text
+  endereco              String   @db.Text
+  telefone_contato      String?  @db.VarChar(20)
+  email_contato         String?  @db.VarChar(255)
+  nota_media            Decimal? @default(0.00) @db.Decimal(3, 2)
+  tempo_medio_entrega   Int?
+  pais_id               String   @db.VarChar(255)
+  ativo                 Boolean? @default(true)
+  horario_abertura      DateTime? @db.Time
+  horario_fechamento    DateTime? @db.Time
+  data_criacao          DateTime @default(now()) @db.Timestamptz
+  data_atualizacao      DateTime @default(now()) @db.Timestamptz
+
+  @@map("Restaurantes") // Mapeia o nome do modelo para o nome da tabela no DB
+}
