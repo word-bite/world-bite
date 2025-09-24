@@ -9,7 +9,7 @@ Banco de Dados	PostgreSQL	Gerenciamento de dados persistente.
 ORM	Prisma	Cliente ORM para comunicação segura com o PostgreSQL.
 Autenticação	Vonage (SMS API)	Serviço de envio de código de verificação por SMS.
 
-Exportar para as Planilhas
+
 ⚙️ Requisitos do Sistema
 Certifique-se de ter os seguintes softwares instalados e em execução na sua máquina antes de iniciar:
 
@@ -60,7 +60,7 @@ Terminal	Comando	Ação
 Terminal 1 (/backend)	npm start	Inicia a API REST na porta 3000.
 Terminal 2 (/front-end)	npm run dev	Inicia o servidor web.
 
-Exportar para as Planilhas
+
 Acesse http://localhost:5173 no seu navegador para visualizar a aplicação.
 
 
