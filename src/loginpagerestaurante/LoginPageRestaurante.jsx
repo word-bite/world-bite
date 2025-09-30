@@ -9,6 +9,7 @@ export default function LoginPageRestaurante() {
   const [requestId, setRequestId] = useState("");
   const navigate = useNavigate();
 
+  // Função para lidar com o login via SMS (método original)
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -34,26 +35,67 @@ export default function LoginPageRestaurante() {
     }
   };
 
+  // 🔑 NOVIDADE: Função para Login Rápido (DEV)
+  const handleLoginRapido = async (e) => {
+    e.preventDefault();
+
+    if (!cnpj) {
+        alert("Digite o CNPJ para usar o Login Rápido.");
+        return;
+    }
+
+    try {
+        const response = await fetch('http://localhost:3000/api/login-rapido', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ cnpj }),
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            // Exibe a modal e pede o código fixo (1234, conforme configuramos no backend)
+            alert(data.message); 
+            setShowModal(true);
+        } else {
+            alert(data.error || 'Erro no Login Rápido. Verifique o CNPJ.');
+        }
+    } catch (error) {
+        console.error('Erro na requisição de Login Rápido:', error);
+        alert('Falha na conexão com o servidor de login rápido.');
+    }
+  };
+
+
+  // Função para verificar o código SMS
   const handleVerifySms = async (e) => {
     e.preventDefault();
     
     try {
-      // O backend precisa do CNPJ para encontrar o código salvo
       const response = await fetch('http://localhost:3000/api/verify-code', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        // CORREÇÃO: Usar .trim() para remover espaços em branco
         body: JSON.stringify({ cnpj: cnpj, code: smsCode.trim() }), 
       });
 
       const data = await response.json();
 
-      // CORREÇÃO: Verificação da resposta
       if (response.ok) {
         alert(data.message);
-        navigate('/painel-do-restaurante');
+        
+        // Limpa o CNPJ
+        const cnpjLimpo = cnpj.replace(/[^\d]/g, ''); 
+        
+        // 🔑 SALVA CNPJ E O NOME (NOVO PASSO)
+        localStorage.setItem('restauranteLogado', cnpjLimpo);
+        // O backend agora deve retornar data.nomeRestaurante
+        localStorage.setItem('restauranteNome', data.nomeRestaurante || 'Restaurante');
+        
+        // Redireciona para a tela-empresa
+        navigate('/tela-empresa');
       } else {
         alert(data.error || 'Código de verificação incorreto.');
       }
@@ -77,7 +119,7 @@ export default function LoginPageRestaurante() {
       <div className="center-container">
         <div className="login-card">
           <h1 className="login-headline">Login para Restaurantes</h1>
-          <form className="login-form" onSubmit={handleLogin}>
+          <form className="login-form">
             <label>
               CNPJ
               <input 
@@ -89,9 +131,22 @@ export default function LoginPageRestaurante() {
                 required 
               />
             </label>
-            <button type="submit" className="login-btn">
-              Entrar
+
+            {/* Botão de Login SMS original */}
+            <button type="submit" onClick={handleLogin} className="login-btn">
+              Entrar (via SMS)
             </button>
+            
+            {/* 🔑 NOVO BOTÃO: Login Rápido (DEV) */}
+            <button 
+                type="button" 
+                onClick={handleLoginRapido} 
+                className="login-btn"
+                style={{ backgroundColor: '#28a745', marginTop: '10px' }} 
+            >
+                Login Rápido (DEV)
+            </button>
+
           </form>
           <Link
             to="/cadastro-restaurante"
@@ -107,7 +162,7 @@ export default function LoginPageRestaurante() {
         <div className="modal-overlay">
           <div className="modal-content">
             <h3>Digite o Código de Verificação</h3>
-            <p>Um código de 4 dígitos foi enviado para o telefone cadastrado.</p>
+            <p>Um código de 4 dígitos foi enviado para o telefone cadastrado. **Para DEV: use 1234**.</p>
             <form onSubmit={handleVerifySms}>
               <input
                 type="text"

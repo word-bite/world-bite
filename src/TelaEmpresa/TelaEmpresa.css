@@ -1,0 +1,95 @@
+/* Fundo com gradiente animado */
+.tela-empresa-bg {
+  min-height: 100vh;
+  width: 100vw;
+  background: linear-gradient(135deg, #ffe5c4, #d6f5e1, #17953a);
+  background-size: 300% 300%;
+  animation: gradientMove 8s ease infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+/* Animação do gradiente */
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Card central com efeito vidro */
+.tela-empresa-container {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 520px;
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.tela-empresa-container:hover {
+  transform: translateY(-4px);
+}
+
+/* Títulos */
+.tela-empresa-headline {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #234236;
+  margin-bottom: 12px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tela-empresa-subtitle {
+  font-size: 1.1rem;
+  color: #444;
+  margin-bottom: 32px;
+}
+
+/* Botões em grid */
+.tela-empresa-opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Botões modernos */
+.tela-empresa-btn {
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #234236, #2e5d47);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.tela-empresa-btn:hover {
+  background: linear-gradient(135deg, #103b2a, #234236);
+  transform: scale(1.05);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+  .tela-empresa-container {
+    padding: 32px 20px;
+    border-radius: 18px;
+  }
+
+  .tela-empresa-headline {
+    font-size: 1.5rem;
+  }
+
+  .tela-empresa-btn {
+    font-size: 0.95rem;
+    padding: 14px;
+  }
+}
