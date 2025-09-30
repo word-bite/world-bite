@@ -163,6 +163,7 @@ app.post('/api/verify-code', async (req, res) => {
 // === CRUD DE USUÁRIOS ===
 // Importar o serviço de usuários
 const usuarioService = require('./services/usuarioService');
+const facebookService = require('./services/facebookService');
 
 /**
  * 1. CADASTRAR USUÁRIO (sem senha)
@@ -298,6 +299,153 @@ app.delete('/api/usuarios/:id', async (req, res) => {
     }
 });
 
+// === AUTENTICAÇÃO FACEBOOK ===
+
+/**
+ * 9. LOGIN COM FACEBOOK - CALLBACK
+ * POST /api/auth/facebook/callback
+ */
+app.post('/api/auth/facebook/callback', async (req, res) => {
+    try {
+        const { code, redirect_uri } = req.body;
+
+        if (!code || !redirect_uri) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'Código de autorização e redirect_uri são obrigatórios'
+            });
+        }
+
+        console.log('📱 Callback do Facebook recebido...');
+        const resultado = await facebookService.completeLogin(code, redirect_uri);
+
+        if (resultado.success) {
+            res.json({
+                sucesso: true,
+                mensagem: 'Login com Facebook realizado com sucesso',
+                token: resultado.token,
+                usuario: resultado.user,
+                novo_usuario: resultado.isNewUser
+            });
+        } else {
+            res.status(400).json({
+                sucesso: false,
+                erro: resultado.error
+            });
+        }
+    } catch (error) {
+        console.error('❌ Erro no callback Facebook:', error);
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro interno do servidor'
+        });
+    }
+});
+
+/**
+ * 10. LOGIN DIRETO COM ACCESS TOKEN
+ * POST /api/auth/facebook/token
+ */
+app.post('/api/auth/facebook/token', async (req, res) => {
+    try {
+        const { access_token } = req.body;
+
+        if (!access_token) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'Access token é obrigatório'
+            });
+        }
+
+        console.log('🎯 Login direto com access token...');
+
+        const validation = await facebookService.validateFacebookToken(access_token);
+        if (!validation.valid) {
+            return res.status(401).json({
+                sucesso: false,
+                erro: validation.error
+            });
+        }
+
+        const profileResult = await facebookService.getUserProfile(access_token);
+        if (!profileResult.success) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: profileResult.error
+            });
+        }
+
+        const authResult = await facebookService.authenticateUser(
+            profileResult.user, 
+            access_token
+        );
+
+        res.json({
+            sucesso: true,
+            mensagem: 'Login com Facebook realizado com sucesso',
+            token: authResult.token,
+            usuario: authResult.user,
+            novo_usuario: authResult.isNewUser
+        });
+
+    } catch (error) {
+        console.error('❌ Erro no login com token:', error);
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro interno do servidor'
+        });
+    }
+});
+
+/**
+ * 11. OBTER URL DE LOGIN DO FACEBOOK
+ * GET /api/auth/facebook/url
+ */
+app.get('/api/auth/facebook/url', (req, res) => {
+    try {
+        const { redirect_uri } = req.query;
+
+        if (!redirect_uri) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'redirect_uri é obrigatório como query parameter'
+            });
+        }
+
+        const facebookAppId = process.env.FACEBOOK_APP_ID;
+        if (!facebookAppId) {
+            return res.status(500).json({
+                sucesso: false,
+                erro: 'FACEBOOK_APP_ID não configurado no .env'
+            });
+        }
+
+        const scope = 'email,public_profile';
+        const responseType = 'code';
+        
+        const authUrl = `https://www.facebook.com/v18.0/dialog/oauth?` +
+            `client_id=${facebookAppId}&` +
+            `redirect_uri=${encodeURIComponent(redirect_uri)}&` +
+            `scope=${scope}&` +
+            `response_type=${responseType}&` +
+            `state=random_${Date.now()}`;
+
+        res.json({
+            sucesso: true,
+            auth_url: authUrl,
+            app_id: facebookAppId,
+            redirect_uri: redirect_uri
+        });
+
+    } catch (error) {
+        console.error('❌ Erro ao gerar URL do Facebook:', error);
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro interno do servidor'
+        });
+    }
+});
+
 // Rota de status para verificar as APIs disponíveis
 app.get('/api/status', (req, res) => {
     res.json({
@@ -318,6 +466,11 @@ app.get('/api/status', (req, res) => {
                 buscar: 'GET /api/usuarios/:id',
                 atualizar: 'PUT /api/usuarios/:id',
                 desativar: 'DELETE /api/usuarios/:id'
+            },
+            facebook: {
+                login_url: 'GET /api/auth/facebook/url?redirect_uri=URL',
+                callback: 'POST /api/auth/facebook/callback',
+                token_login: 'POST /api/auth/facebook/token'
             }
         },
         timestamp: new Date().toISOString()

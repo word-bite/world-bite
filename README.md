@@ -22,6 +22,7 @@ Plataforma completa para restaurantes com sistema de autenticação sem senha, u
 ### 👥 Sistema de Usuários  
 - ✅ Cadastro de usuários sem senha
 - ✅ Login com código de verificação (Email/SMS)
+- ✅ **Login com Facebook (OAuth 2.0)**
 - ✅ CRUD completo de usuários
 - ✅ Verificação por email (Nodemailer)
 - ✅ Verificação por SMS (Vonage)
@@ -63,6 +64,10 @@ EMAIL_HOST="smtp.gmail.com"
 EMAIL_PORT=587
 EMAIL_USER="seu.email@gmail.com"
 EMAIL_PASS="sua_senha_de_app"
+
+# Configurações Facebook OAuth
+FACEBOOK_APP_ID="sua_app_id_facebook"
+FACEBOOK_APP_SECRET="seu_app_secret_facebook"
 
 
 3. Setup do Banco de Dados com Prisma
@@ -120,6 +125,13 @@ PUT /api/usuarios/:id          - Atualizar usuário
 DELETE /api/usuarios/:id       - Deletar usuário
 ```
 
+### 📱 APIs de Facebook Login
+```
+GET /api/auth/facebook/url           - Obter URL de login Facebook
+POST /api/auth/facebook/callback     - Processar código de retorno
+POST /api/auth/facebook/token        - Login direto com access token
+```
+
 ## 🧪 Testando as APIs
 
 ### Cadastro de Usuário
@@ -149,6 +161,71 @@ curl -X POST http://localhost:3000/api/usuarios/login \
   "codigo": "123456"
 }'
 ```
+
+### 🔑 Login com Facebook (OAuth 2.0)
+
+#### 1. Obter URL de Login
+```bash
+curl "http://localhost:3000/api/auth/facebook/url?redirect_uri=http://localhost:5173/auth/facebook/callback"
+```
+
+#### 2. Processar Callback (Frontend → Backend)
+```bash
+curl -X POST http://localhost:3000/api/auth/facebook/callback \
+-H "Content-Type: application/json" \
+-d '{
+  "code": "codigo_do_facebook",
+  "redirect_uri": "http://localhost:5173/auth/facebook/callback"
+}'
+```
+
+#### 3. Login Direto com Token
+```bash
+curl -X POST http://localhost:3000/api/auth/facebook/token \
+-H "Content-Type: application/json" \
+-d '{
+  "access_token": "token_do_facebook"
+}'
+```
+
+## 🔑 Como funciona o Login com Facebook (fluxo OAuth 2.0)
+
+### **Frontend → Facebook**
+1. O usuário clica em "Continuar com Facebook"
+2. Frontend redireciona para `https://facebook.com/dialog/oauth` com:
+   - `client_id`: ID da sua app Facebook
+   - `redirect_uri`: URL de retorno (ex: `/auth/facebook/callback`)
+   - `scope`: Permissões (`email,public_profile`)
+
+### **Facebook → Frontend**
+3. Usuário autoriza no Facebook
+4. Facebook redireciona de volta com `authorization code`
+
+### **Frontend → Backend**
+5. Frontend envia código para `/api/auth/facebook/callback`
+
+### **Backend → Facebook**
+6. Backend troca código por `access_token` na API do Facebook
+7. Backend busca dados do usuário (`/me?fields=id,name,email,picture`)
+
+### **Backend → Banco de Dados**
+8. Se usuário existe (por `facebook_id` ou `email`): autentica
+9. Se não existe: cria novo usuário
+10. Gera JWT token
+
+### **Backend → Frontend**
+11. Retorna JWT e dados do usuário
+12. Frontend salva token e redireciona para app
+
+### 📱 **Configuração Facebook App**
+
+1. **Criar App Facebook**: https://developers.facebook.com
+2. **Configurar OAuth**:
+   - Valid OAuth Redirect URIs: `http://localhost:5173/auth/facebook/callback`
+   - App Domains: `localhost`
+3. **Obter credenciais**:
+   - App ID → `FACEBOOK_APP_ID`
+   - App Secret → `FACEBOOK_APP_SECRET`
 
 ## 🔧 Comandos Úteis
 

@@ -42,6 +42,12 @@ model Usuario {
   ativo                 Boolean  @default(true)
   data_criacao          DateTime @default(now()) @db.Timestamptz
   ultimo_login          DateTime?
+  
+  // Campos para autenticação via Facebook
+  facebook_id           String?  @unique @db.VarChar(100)
+  avatar_url            String?  @db.VarChar(500)
+  provider              String?  @default("email") @db.VarChar(50) // email, facebook, google
+  facebook_access_token String?  @db.Text
 
   @@map("Usuarios") // Mapeia para a tabela Usuarios no DB
 }

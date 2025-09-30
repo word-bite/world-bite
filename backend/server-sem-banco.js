@@ -7,29 +7,19 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middlewares
 app.use(cors());
 app.use(express.json());
 
-// Simulação de banco em memória para demonstração
 let usuarios = [];
 let nextId = 1;
 
-// Função para gerar código de verificação
 function gerarCodigo() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
-
-// === APIS DE USUÁRIOS (SEM BANCO DE DADOS) ===
-
-/**
- * 1. CADASTRAR USUÁRIO
- */
 app.post('/api/usuarios/cadastro', async (req, res) => {
   try {
     const { nome, email, telefone } = req.body;
 
-    // Validações
     if (!nome) {
       return res.status(400).json({
         sucesso: false,
@@ -44,7 +34,6 @@ app.post('/api/usuarios/cadastro', async (req, res) => {
       });
     }
 
-    // Verificar se já existe
     const existe = usuarios.find(u => 
       (email && u.email === email) || 
       (telefone && u.telefone === telefone)
@@ -57,7 +46,6 @@ app.post('/api/usuarios/cadastro', async (req, res) => {
       });
     }
 
-    // Criar usuário
     const novoUsuario = {
       id: nextId++,
       nome: nome.trim(),
@@ -74,7 +62,7 @@ app.post('/api/usuarios/cadastro', async (req, res) => {
 
     usuarios.push(novoUsuario);
 
-    console.log(`✅ Usuário cadastrado: ${nome} - ${email || telefone}`);
+    console.log(`Usuário cadastrado: ${nome} - ${email || telefone}`);
 
     res.status(201).json({
       sucesso: true,
@@ -96,9 +84,6 @@ app.post('/api/usuarios/cadastro', async (req, res) => {
   }
 });
 
-/**
- * 2. ENVIAR CÓDIGO POR EMAIL
- */
 app.post('/api/usuarios/codigo-email', async (req, res) => {
   try {
     const { email } = req.body;
@@ -110,11 +95,9 @@ app.post('/api/usuarios/codigo-email', async (req, res) => {
       });
     }
 
-    // Buscar ou criar usuário
     let usuario = usuarios.find(u => u.email === email);
 
     if (!usuario) {
-      // Criar usuário automaticamente (padrão iFood)
       usuario = {
         id: nextId++,
         nome: `Usuário ${email.split('@')[0]}`,
@@ -132,14 +115,12 @@ app.post('/api/usuarios/codigo-email', async (req, res) => {
       console.log(`🆕 Usuário criado automaticamente: ${email}`);
     }
 
-    // Gerar e salvar código
     const codigo = gerarCodigo();
-    const expiraEm = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
+    const expiraEm = new Date(Date.now() + 15 * 60 * 1000);
 
     usuario.codigo_verificacao = codigo;
     usuario.codigo_expira_em = expiraEm.toISOString();
 
-    // Simular envio de email
     console.log('📧 CÓDIGO DE VERIFICAÇÃO POR EMAIL');
     console.log(`Email: ${email}`);
     console.log(`Código: ${codigo}`);
@@ -149,7 +130,7 @@ app.post('/api/usuarios/codigo-email', async (req, res) => {
     res.json({
       sucesso: true,
       mensagem: 'Código enviado por email',
-      codigoParaTeste: codigo // Para facilitar testes acadêmicos
+      codigoParaTeste: codigo
     });
 
   } catch (error) {
@@ -161,9 +142,6 @@ app.post('/api/usuarios/codigo-email', async (req, res) => {
   }
 });
 
-/**
- * 3. ENVIAR CÓDIGO POR SMS
- */
 app.post('/api/usuarios/codigo-sms', async (req, res) => {
   try {
     const { telefone } = req.body;
@@ -175,7 +153,6 @@ app.post('/api/usuarios/codigo-sms', async (req, res) => {
       });
     }
 
-    // Buscar ou criar usuário
     let usuario = usuarios.find(u => u.telefone === telefone);
 
     if (!usuario) {
@@ -196,14 +173,12 @@ app.post('/api/usuarios/codigo-sms', async (req, res) => {
       console.log(`🆕 Usuário criado automaticamente: ${telefone}`);
     }
 
-    // Gerar e salvar código
     const codigo = gerarCodigo();
     const expiraEm = new Date(Date.now() + 15 * 60 * 1000);
 
     usuario.codigo_verificacao = codigo;
     usuario.codigo_expira_em = expiraEm.toISOString();
 
-    // Simular envio de SMS
     console.log('📱 CÓDIGO DE VERIFICAÇÃO POR SMS');
     console.log(`Telefone: ${telefone}`);
     console.log(`Código: ${codigo}`);
@@ -225,9 +200,6 @@ app.post('/api/usuarios/codigo-sms', async (req, res) => {
   }
 });
 
-/**
- * 4. LOGIN COM CÓDIGO
- */
 app.post('/api/usuarios/login', async (req, res) => {
   try {
     const { identificador, codigo } = req.body;
@@ -239,7 +211,6 @@ app.post('/api/usuarios/login', async (req, res) => {
       });
     }
 
-    // Buscar usuário
     const usuario = usuarios.find(u => 
       u.email === identificador || u.telefone === identificador
     );
@@ -258,7 +229,6 @@ app.post('/api/usuarios/login', async (req, res) => {
       });
     }
 
-    // Verificar código
     if (!usuario.codigo_verificacao || 
         usuario.codigo_verificacao !== codigo ||
         !usuario.codigo_expira_em ||
@@ -269,7 +239,6 @@ app.post('/api/usuarios/login', async (req, res) => {
       });
     }
 
-    // Login bem-sucedido
     usuario.codigo_verificacao = null;
     usuario.codigo_expira_em = null;
     usuario.ultimo_login = new Date().toISOString();
@@ -306,9 +275,6 @@ app.post('/api/usuarios/login', async (req, res) => {
   }
 });
 
-/**
- * 5. LISTAR USUÁRIOS
- */
 app.get('/api/usuarios', (req, res) => {
   try {
     const usuariosAtivos = usuarios.filter(u => u.ativo);
@@ -336,9 +302,6 @@ app.get('/api/usuarios', (req, res) => {
   }
 });
 
-/**
- * 6. BUSCAR USUÁRIO POR ID
- */
 app.get('/api/usuarios/:id', (req, res) => {
   try {
     const id = parseInt(req.params.id);
@@ -373,9 +336,6 @@ app.get('/api/usuarios/:id', (req, res) => {
   }
 });
 
-/**
- * 7. ATUALIZAR USUÁRIO
- */
 app.put('/api/usuarios/:id', (req, res) => {
   try {
     const id = parseInt(req.params.id);
@@ -414,9 +374,6 @@ app.put('/api/usuarios/:id', (req, res) => {
   }
 });
 
-/**
- * 8. DESATIVAR USUÁRIO
- */
 app.delete('/api/usuarios/:id', (req, res) => {
   try {
     const id = parseInt(req.params.id);
@@ -445,7 +402,6 @@ app.delete('/api/usuarios/:id', (req, res) => {
   }
 });
 
-// Rota de status
 app.get('/api/status', (req, res) => {
   res.json({
     status: 'OK',
@@ -462,19 +418,137 @@ app.get('/api/status', (req, res) => {
         buscar: 'GET /api/usuarios/:id',
         atualizar: 'PUT /api/usuarios/:id',
         desativar: 'DELETE /api/usuarios/:id'
+      },
+      facebook: {
+        login_url: 'GET /api/auth/facebook/url?redirect_uri=URL',
+        callback: 'POST /api/auth/facebook/callback (modo acadêmico)'
       }
     },
     observacoes: [
-      '✅ Funciona SEM PostgreSQL',
-      '✅ Dados em memória (resetam ao reiniciar)',
-      '✅ Códigos aparecem no console',
-      '✅ Ideal para demonstrações acadêmicas'
+      'Dados em memória (resetam ao reiniciar)'
     ],
     timestamp: new Date().toISOString()
   });
 });
 
-// Rota raiz
+app.post('/api/auth/facebook/callback', async (req, res) => {
+  try {
+    const { code, redirect_uri } = req.body;
+
+    if (!code || !redirect_uri) {
+      return res.status(400).json({
+        sucesso: false,
+        erro: 'Código e redirect_uri são obrigatórios'
+      });
+    }
+
+    console.log('📱 SIMULAÇÃO: Callback Facebook recebido');
+    console.log(`Código: ${code.substring(0, 20)}...`);
+    console.log(`Redirect URI: ${redirect_uri}`);
+
+    const facebookUser = {
+      id: `fb_${Date.now()}`,
+      name: 'Usuário Facebook Teste',
+      email: 'usuario.facebook@exemplo.com',
+      picture: {
+        data: {
+          url: 'https://via.placeholder.com/150'
+        }
+      }
+    };
+
+    let usuario = usuarios.find(u => u.facebook_id === facebookUser.id);
+    
+    if (!usuario) {
+      usuario = {
+        id: nextId++,
+        nome: facebookUser.name,
+        email: facebookUser.email,
+        telefone: null,
+        facebook_id: facebookUser.id,
+        avatar_url: facebookUser.picture.data.url,
+        provider: 'facebook',
+        codigo_verificacao: null,
+        codigo_expira_em: null,
+        email_verificado: true,
+        telefone_verificado: false,
+        ativo: true,
+        data_criacao: new Date().toISOString(),
+        ultimo_login: new Date().toISOString()
+      };
+      usuarios.push(usuario);
+      console.log('🆕 Novo usuário criado via Facebook:', usuario.nome);
+    } else {
+      usuario.ultimo_login = new Date().toISOString();
+      console.log('🔐 Login via Facebook:', usuario.nome);
+    }
+
+    const token = `facebook_token_${usuario.id}_${Date.now()}`;
+
+    res.json({
+      sucesso: true,
+      mensagem: 'Login com Facebook realizado com sucesso (modo acadêmico)',
+      token: token,
+      usuario: {
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        avatar_url: usuario.avatar_url,
+        provider: usuario.provider,
+        email_verificado: usuario.email_verificado
+      },
+      novo_usuario: usuario.data_criacao === usuario.ultimo_login
+    });
+
+  } catch (error) {
+    console.error('Erro no callback Facebook:', error);
+    res.status(500).json({
+      sucesso: false,
+      erro: 'Erro interno do servidor'
+    });
+  }
+});
+
+app.get('/api/auth/facebook/url', (req, res) => {
+  try {
+    const { redirect_uri } = req.query;
+
+    if (!redirect_uri) {
+      return res.status(400).json({
+        sucesso: false,
+        erro: 'redirect_uri é obrigatório'
+      });
+    }
+
+    const facebookAppId = '123456789012345';
+    const scope = 'email,public_profile';
+    
+    const authUrl = `https://www.facebook.com/v18.0/dialog/oauth?` +
+        `client_id=${facebookAppId}&` +
+        `redirect_uri=${encodeURIComponent(redirect_uri)}&` +
+        `scope=${scope}&` +
+        `response_type=code&` +
+        `state=academic_${Date.now()}`;
+
+    console.log('🔗 URL de login Facebook gerada (modo acadêmico)');
+
+    res.json({
+      sucesso: true,
+      auth_url: authUrl,
+      app_id: facebookAppId,
+      redirect_uri: redirect_uri,
+      observacao: 'Modo acadêmico - usar qualquer código para teste'
+    });
+
+  } catch (error) {
+    console.error('Erro ao gerar URL Facebook:', error);
+    res.status(500).json({
+      sucesso: false,
+      erro: 'Erro interno do servidor'
+    });
+  }
+});
+
 app.get('/', (req, res) => {
   res.json({
     mensagem: 'World Bite API - Servidor Acadêmico',
@@ -483,7 +557,6 @@ app.get('/', (req, res) => {
   });
 });
 
-// Iniciar servidor
 app.listen(PORT, () => {
   console.log('🚀 ================================');
   console.log(`📍 Servidor rodando em http://localhost:${PORT}`);
