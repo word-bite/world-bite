@@ -7,6 +7,7 @@ import Home from "./Home/Home";
 import TelaEmpresa from "./TelaEmpresa/TelaEmpresa";
 import PainelRestaurante from "./empresas/PainelRestaurante";
 import CadastroPrato from "./empresas/CadastroPrato";
+import Pedido from "./pedidos/pedidos";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
        <Route path="/tela-empresa" element={<TelaEmpresa />} />
        <Route path="/painel-restaurante" element={<PainelRestaurante />} />
         <Route path="/cadastro-prato" element={<CadastroPrato />} />
+        <Route path="/pedidos" element={<Pedido />} />
       </Routes>
     </Router>
   );
