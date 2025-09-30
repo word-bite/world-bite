@@ -13,10 +13,12 @@
   "type": "commonjs",
   "dependencies": {
     "@prisma/client": "^6.16.1",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.19.2",
     "nexmo": "^2.9.1",
+    "nodemailer": "^6.9.7",
     "pg": "^8.12.0"
   },
   "devDependencies": {

@@ -29,3 +29,19 @@ model Restaurante {
 
   @@map("Restaurantes") // Mapeia o nome do modelo para o nome da tabela no DB
 }
+
+model Usuario {
+  id                    Int      @id @default(autoincrement())
+  nome                  String   @db.VarChar(100)
+  email                 String?  @unique @db.VarChar(255)
+  telefone              String?  @unique @db.VarChar(20)
+  codigo_verificacao    String?  @db.VarChar(10)
+  codigo_expira_em      DateTime?
+  email_verificado      Boolean  @default(false)
+  telefone_verificado   Boolean  @default(false)
+  ativo                 Boolean  @default(true)
+  data_criacao          DateTime @default(now()) @db.Timestamptz
+  ultimo_login          DateTime?
+
+  @@map("Usuarios") // Mapeia para a tabela Usuarios no DB
+}

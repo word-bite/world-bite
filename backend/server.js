@@ -29,12 +29,15 @@ app.use(express.json());
 // 4. Testar a conexão com o Prisma (opcional, mas útil)
 (async () => {
     try {
-        await prisma.$connect();
-        console.log('Conexão bem-sucedida com o PostgreSQL usando Prisma!');
+        if (prisma) {
+            await prisma.$connect();
+            console.log('✅ Conexão bem-sucedida com o PostgreSQL usando Prisma!');
+        } else {
+            console.log('⚠️  PostgreSQL não está disponível. As APIs funcionarão mas retornarão erro específico.');
+        }
     } catch (err) {
-        console.error('Erro na conexão com o banco de dados:', err);
-    } finally {
-        if (prisma.$disconnect) await prisma.$disconnect();
+        console.error('❌ Erro na conexão com o banco de dados:', err.message);
+        console.log('💡 Para resolver: configure PostgreSQL ou use Docker (veja README.md)');
     }
 })();
 
@@ -155,6 +158,170 @@ app.post('/api/verify-code', async (req, res) => {
     
     // CORREÇÃO: Adicionando 'success: true' na resposta
     res.status(200).json({ success: true, message: 'Login bem-sucedido!', token: 'seu-token-de-autenticacao' });
+});
+
+// === CRUD DE USUÁRIOS ===
+// Importar o serviço de usuários
+const usuarioService = require('./services/usuarioService');
+
+/**
+ * 1. CADASTRAR USUÁRIO (sem senha)
+ * POST /api/usuarios/cadastro
+ */
+app.post('/api/usuarios/cadastro', async (req, res) => {
+    try {
+        const resultado = await usuarioService.cadastrarUsuario(req.body);
+        res.status(201).json(resultado);
+    } catch (error) {
+        res.status(400).json({ 
+            sucesso: false, 
+            erro: error.message 
+        });
+    }
+});
+
+/**
+ * 2. ENVIAR CÓDIGO POR EMAIL
+ * POST /api/usuarios/codigo-email
+ */
+app.post('/api/usuarios/codigo-email', async (req, res) => {
+    try {
+        const { email } = req.body;
+        const resultado = await usuarioService.enviarCodigoEmail(email);
+        res.json(resultado);
+    } catch (error) {
+        res.status(400).json({ 
+            sucesso: false, 
+            erro: error.message 
+        });
+    }
+});
+
+/**
+ * 3. ENVIAR CÓDIGO POR SMS
+ * POST /api/usuarios/codigo-sms
+ */
+app.post('/api/usuarios/codigo-sms', async (req, res) => {
+    try {
+        const { telefone } = req.body;
+        const resultado = await usuarioService.enviarCodigoSMS(telefone);
+        res.json(resultado);
+    } catch (error) {
+        res.status(400).json({ 
+            sucesso: false, 
+            erro: error.message 
+        });
+    }
+});
+
+/**
+ * 4. VERIFICAR CÓDIGO E FAZER LOGIN
+ * POST /api/usuarios/login
+ */
+app.post('/api/usuarios/login', async (req, res) => {
+    try {
+        const { identificador, codigo } = req.body;
+        const resultado = await usuarioService.verificarCodigoELogin(identificador, codigo);
+        res.json(resultado);
+    } catch (error) {
+        res.status(401).json({ 
+            sucesso: false, 
+            erro: error.message 
+        });
+    }
+});
+
+/**
+ * 5. LISTAR USUÁRIOS
+ * GET /api/usuarios
+ */
+app.get('/api/usuarios', async (req, res) => {
+    try {
+        const resultado = await usuarioService.listarUsuarios();
+        res.json(resultado);
+    } catch (error) {
+        res.status(500).json({ 
+            sucesso: false, 
+            erro: error.message 
+        });
+    }
+});
+
+/**
+ * 6. BUSCAR USUÁRIO POR ID
+ * GET /api/usuarios/:id
+ */
+app.get('/api/usuarios/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const resultado = await usuarioService.buscarUsuarioPorId(id);
+        res.json(resultado);
+    } catch (error) {
+        res.status(404).json({ 
+            sucesso: false, 
+            erro: error.message 
+        });
+    }
+});
+
+/**
+ * 7. ATUALIZAR USUÁRIO
+ * PUT /api/usuarios/:id
+ */
+app.put('/api/usuarios/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const resultado = await usuarioService.atualizarUsuario(id, req.body);
+        res.json(resultado);
+    } catch (error) {
+        res.status(400).json({ 
+            sucesso: false, 
+            erro: error.message 
+        });
+    }
+});
+
+/**
+ * 8. DESATIVAR USUÁRIO
+ * DELETE /api/usuarios/:id
+ */
+app.delete('/api/usuarios/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const resultado = await usuarioService.desativarUsuario(id);
+        res.json(resultado);
+    } catch (error) {
+        res.status(404).json({ 
+            sucesso: false, 
+            erro: error.message 
+        });
+    }
+});
+
+// Rota de status para verificar as APIs disponíveis
+app.get('/api/status', (req, res) => {
+    res.json({
+        status: 'OK',
+        mensagem: 'World Bite API - Backend Acadêmico',
+        apis: {
+            restaurantes: {
+                cadastro: 'POST /restaurantes',
+                verificacao_sms: 'POST /api/send-verification-code',
+                login_cnpj: 'POST /api/verify-code'
+            },
+            usuarios: {
+                cadastro: 'POST /api/usuarios/cadastro',
+                codigo_email: 'POST /api/usuarios/codigo-email',
+                codigo_sms: 'POST /api/usuarios/codigo-sms',
+                login: 'POST /api/usuarios/login',
+                listar: 'GET /api/usuarios',
+                buscar: 'GET /api/usuarios/:id',
+                atualizar: 'PUT /api/usuarios/:id',
+                desativar: 'DELETE /api/usuarios/:id'
+            }
+        },
+        timestamp: new Date().toISOString()
+    });
 });
 
 // 5. Iniciar o servidor
