@@ -1,12 +1,323 @@
-.home-card {
+html {
+  scroll-behavior: smooth;
+}
+
+
+/* Garante que ao dar scrollIntoView a seção não fique escondida atrás do header */
+.home-section {
+  margin: 48px auto 0 auto;
+  max-width: 600px;
   background: #fff;
-  border-radius: 28px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.1);
-  padding: 40px 32px 32px 32px;
-  min-width: 320px;
-  max-width: 400px;
-  width: 100%;
+  border-radius: 18px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  padding: 32px 24px;
+  text-align: center;
+  scroll-margin-top: 120px; /* <<< offset do header fixo */
+}
+
+
+.home-section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #234236;
+}
+
+.home-section p {
+  font-size: 1.08rem;
+  color: #222;
+  margin-bottom: 0;
+}
+
+.home-section .home-btn-card, .home-section a.home-btn-card {
+  margin-top: 18px;
+  background: #0c5435;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+input:focus, button:focus, a:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+
+
+.home-bg {
+  background: #fafafa;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  overflow-y: auto; /* Permite scroll vertical */
+}
+
+.home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32px 48px 0 48px;
+  background: #fafafa;
+}
+
+.home-logo {
+  height: 48px;
+  border-radius: 25px;
+}
+
+.home-nav {
+  display: flex;
+  gap: 32px;
+}
+
+.home-nav a {
+  color: #57271a;
+  font-size: 1.08rem;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.home-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.home-link {
+  color: #0c5435;
+  font-weight: 600;
+  text-decoration: none;
+  margin-right: 8px;
+}
+
+.home-btn {
+  background: #0c5435;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 28px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.home-main {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: 32px;
+  background-color: rgb(245, 231, 220);
+}
+
+.home-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.home-subtitle {
+  color: #70402b;
+  font-size: 1.1rem;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.home-search {
+  display: flex;
+  gap: 0;
+  margin-bottom: 40px;
+  color: white;
+}
+
+.home-search input {
+  padding: 14px 18px;
+  border-radius: 8px 0 0 8px;
+  border: 1px solid #eee;
+  font-size: 1rem;
+  width: 320px;
+  outline: none;
+  color: #222;
+  background-color: #eee;
+}
+
+.home-btn-search {
+  background: #0c5435;
+  color: #ffffff;
+  border: none;
+  border-radius: 0 8px 8px 0;
+  padding: 14px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: -4px;
+}
+
+.home-cards {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 40px;
+}
+
+.home-card {
+  border-radius: 24px;
+  padding: 32px 32px 24px 32px;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  background: #fff;
+  position: relative;
+}
+
+.home-card.restaurante {
+  background: #6a1717;
+  color: #fff;
+}
+
+.home-card.coquetelaria {
+  background: #ffbc41;
+  color: #222;
+}
+
+.home-card h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+.home-card img {
+  width: 100%;
+  border-radius: 16px;
+  margin-bottom: 18px;
+  object-fit: cover;
+  height: 120px;
+}
+
+.home-btn-card {
+  background: #fff;
+  color: #000000;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.home-card.mercado .home-btn-card {
+  background: #fff;
+  color: #6a8f3a;
+}
+
+.home-categories {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.home-category {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  min-width: 120px;
+}
+
+.home-category img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.home-category span {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.home-category.bebidas {
+  background: #ffe066;
+}
+
+.home-category.farmacia {
+  background: #f8c3c3;
+}
+
+.home-category.petshop {
+  background: #e1d6ff;
+}
+
+
+.modal-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-card {
+  background: rgba(128, 128, 128, 0.576); /* branco transparente */
+  backdrop-filter: blur(12px);           /* efeito blur */
+  -webkit-backdrop-filter: blur(12px);   /* suporte Safari */
+  padding: 32px;
+  border-radius: 16px;
+  min-width: 320px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.modal-btn {
+  margin-top: 18px;
+  padding: 12px 24px;
+  background: #0c5435;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Responsivo */
+@media (max-width: 900px) {
+  .home-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px 16px 0 16px;
+    gap: 12px;
+  }
+  .home-main {
+    margin-top: 18px;
+  }
+  .home-cards {
+    flex-direction: column;
+    gap: 18px;
+  }
+  .home-categories {
+    flex-direction: column;
+    gap: 18px;
+  }
 }
