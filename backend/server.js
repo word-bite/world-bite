@@ -9,6 +9,9 @@ const Nexmo = require('nexmo');
 // Importar o cliente do Prisma
 const prisma = require('./config/database.js');
 
+// Importar o serviço de email
+const emailService = require('./services/emailService');
+
 // 🔑 IMPORTAÇÃO DAS ROTAS DE PRATOS
 const pratoRoutes = require('./routes/pratos');
 
@@ -165,16 +168,25 @@ app.post('/api/usuarios/codigo-email', async (req, res) => {
             }
         });
 
-        console.log('📧 CÓDIGO DE VERIFICAÇÃO POR EMAIL');
+        // Enviar email de verificação
+        const emailResult = await emailService.sendVerificationEmail(email, codigo, usuario.nome);
+        
+        if (!emailResult.success) {
+            console.error('❌ Erro ao enviar email:', emailResult.error);
+            return res.status(500).json({
+                sucesso: false,
+                erro: 'Erro ao enviar email de verificação'
+            });
+        }
+
+        console.log('📧 EMAIL DE VERIFICAÇÃO ENVIADO');
         console.log(`Email: ${email}`);
-        console.log(`Código: ${codigo}`);
-        console.log(`Expira: ${expiraEm.toLocaleString()}`);
+        console.log(`Message ID: ${emailResult.messageId}`);
         console.log('─'.repeat(50));
 
         res.json({
             sucesso: true,
-            mensagem: 'Código enviado por email',
-            codigoParaTeste: codigo // Apenas para desenvolvimento
+            mensagem: 'Código de verificação enviado para seu email'
         });
 
     } catch (error) {
@@ -238,8 +250,7 @@ app.post('/api/usuarios/codigo-sms', async (req, res) => {
 
         res.json({
             sucesso: true,
-            mensagem: 'Código enviado por SMS',
-            codigoParaTeste: codigo // Apenas para desenvolvimento
+            mensagem: 'Código de verificação enviado por SMS'
         });
 
     } catch (error) {
@@ -298,6 +309,9 @@ app.post('/api/usuarios/login', async (req, res) => {
             });
         }
 
+        // Verificar se é a primeira verificação (para enviar email de boas-vindas)
+        const isFirstVerification = !usuario.email_verificado && !usuario.telefone_verificado;
+
         // Atualizar usuário (limpar código e atualizar último login)
         const usuarioAtualizado = await prisma.usuario.update({
             where: { id: usuario.id },
@@ -320,6 +334,17 @@ app.post('/api/usuarios/login', async (req, res) => {
                 provider: true
             }
         });
+
+        // Enviar email de boas-vindas se for a primeira verificação e tiver email
+        if (isFirstVerification && usuario.email) {
+            try {
+                await emailService.sendWelcomeEmail(usuario.email, usuario.nome);
+                console.log(`📧 Email de boas-vindas enviado para: ${usuario.email}`);
+            } catch (error) {
+                console.error('❌ Erro ao enviar email de boas-vindas:', error);
+                // Não falha o login por causa do email de boas-vindas
+            }
+        }
 
         console.log(`🔐 Login realizado: ${usuario.nome} (${identificador})`);
 
@@ -847,6 +872,54 @@ app.post('/api/login-rapido', async (req, res) => {
     } catch (err) {
         console.error('Erro no login rápido:', err);
         res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
+});
+
+// =======================================================
+// ROTA DE TESTE DE EMAIL
+// =======================================================
+
+app.get('/api/test-email', async (req, res) => {
+    try {
+        console.log('🧪 Testando configuração de email...');
+        
+        // Testar conexão
+        const connectionTest = await emailService.testConnection();
+        
+        if (!connectionTest.success) {
+            return res.status(500).json({
+                sucesso: false,
+                erro: 'Falha na conexão com servidor de email',
+                detalhes: connectionTest.error
+            });
+        }
+
+        // Enviar email de teste se foi fornecido um email na query
+        const { email } = req.query;
+        if (email) {
+            const emailResult = await emailService.sendVerificationEmail(email, '123456', 'Teste');
+            return res.json({
+                sucesso: true,
+                mensagem: 'Teste de email concluído',
+                conexao: connectionTest,
+                email: emailResult
+            });
+        }
+
+        res.json({
+            sucesso: true,
+            mensagem: 'Conexão com servidor de email OK',
+            conexao: connectionTest,
+            dica: 'Use ?email=seuemail@teste.com para testar envio'
+        });
+
+    } catch (error) {
+        console.error('❌ Erro no teste de email:', error);
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro interno no teste de email',
+            detalhes: error.message
+        });
     }
 });
 
