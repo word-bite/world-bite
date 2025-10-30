@@ -46,6 +46,688 @@ app.use(express.json());
 })();
 
 // =======================================================
+// ROTAS DE USUÁRIOS - AUTENTICAÇÃO SEM SENHA
+// =======================================================
+
+// Função utilitária para gerar código de verificação
+function gerarCodigo() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// 🆕 Cadastro de usuário
+app.post('/api/usuarios/cadastro', async (req, res) => {
+    try {
+        const { nome, email, telefone } = req.body;
+
+        if (!nome) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'Nome é obrigatório'
+            });
+        }
+
+        if (!email && !telefone) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'Email ou telefone é obrigatório'
+            });
+        }
+
+        // Verificar se usuário já existe
+        const usuarioExistente = await prisma.usuario.findFirst({
+            where: {
+                OR: [
+                    email ? { email: email } : {},
+                    telefone ? { telefone: telefone } : {}
+                ]
+            }
+        });
+
+        if (usuarioExistente) {
+            return res.status(409).json({
+                sucesso: false,
+                erro: 'Usuário já cadastrado com este email ou telefone'
+            });
+        }
+
+        // Criar novo usuário
+        const novoUsuario = await prisma.usuario.create({
+            data: {
+                nome: nome.trim(),
+                email: email || null,
+                telefone: telefone || null,
+                ativo: true
+            },
+            select: {
+                id: true,
+                nome: true,
+                email: true,
+                telefone: true,
+                data_criacao: true
+            }
+        });
+
+        console.log(`✅ Usuário cadastrado: ${nome} - ${email || telefone}`);
+
+        res.status(201).json({
+            sucesso: true,
+            mensagem: 'Usuário cadastrado com sucesso!',
+            usuario: novoUsuario
+        });
+
+    } catch (error) {
+        console.error('❌ Erro no cadastro:', error);
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro interno do servidor'
+        });
+    }
+});
+
+// 📧 Enviar código de verificação por email
+app.post('/api/usuarios/codigo-email', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'Email é obrigatório'
+            });
+        }
+
+        // Buscar ou criar usuário
+        let usuario = await prisma.usuario.findUnique({
+            where: { email: email }
+        });
+
+        if (!usuario) {
+            usuario = await prisma.usuario.create({
+                data: {
+                    nome: `Usuário ${email.split('@')[0]}`,
+                    email: email,
+                    ativo: true
+                }
+            });
+            console.log(`🆕 Usuário criado automaticamente: ${email}`);
+        }
+
+        // Gerar código
+        const codigo = gerarCodigo();
+        const expiraEm = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
+
+        // Atualizar usuário com código
+        await prisma.usuario.update({
+            where: { id: usuario.id },
+            data: {
+                codigo_verificacao: codigo,
+                codigo_expira_em: expiraEm
+            }
+        });
+
+        console.log('📧 CÓDIGO DE VERIFICAÇÃO POR EMAIL');
+        console.log(`Email: ${email}`);
+        console.log(`Código: ${codigo}`);
+        console.log(`Expira: ${expiraEm.toLocaleString()}`);
+        console.log('─'.repeat(50));
+
+        res.json({
+            sucesso: true,
+            mensagem: 'Código enviado por email',
+            codigoParaTeste: codigo // Apenas para desenvolvimento
+        });
+
+    } catch (error) {
+        console.error('❌ Erro ao enviar código por email:', error);
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro interno do servidor'
+        });
+    }
+});
+
+// 📱 Enviar código de verificação por SMS
+app.post('/api/usuarios/codigo-sms', async (req, res) => {
+    try {
+        const { telefone } = req.body;
+
+        if (!telefone) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'Telefone é obrigatório'
+            });
+        }
+
+        // Buscar ou criar usuário
+        let usuario = await prisma.usuario.findUnique({
+            where: { telefone: telefone }
+        });
+
+        if (!usuario) {
+            usuario = await prisma.usuario.create({
+                data: {
+                    nome: `Usuário ${telefone}`,
+                    telefone: telefone,
+                    ativo: true
+                }
+            });
+            console.log(`🆕 Usuário criado automaticamente: ${telefone}`);
+        }
+
+        // Gerar código
+        const codigo = gerarCodigo();
+        const expiraEm = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
+
+        // Atualizar usuário com código
+        await prisma.usuario.update({
+            where: { id: usuario.id },
+            data: {
+                codigo_verificacao: codigo,
+                codigo_expira_em: expiraEm
+            }
+        });
+
+        console.log('📱 CÓDIGO DE VERIFICAÇÃO POR SMS');
+        console.log(`Telefone: ${telefone}`);
+        console.log(`Código: ${codigo}`);
+        console.log(`Expira: ${expiraEm.toLocaleString()}`);
+        console.log('─'.repeat(50));
+
+        // Aqui você integraria com o Vonage/Nexmo para envio real do SMS
+        // Por ora, apenas log para desenvolvimento
+
+        res.json({
+            sucesso: true,
+            mensagem: 'Código enviado por SMS',
+            codigoParaTeste: codigo // Apenas para desenvolvimento
+        });
+
+    } catch (error) {
+        console.error('❌ Erro ao enviar código por SMS:', error);
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro interno do servidor'
+        });
+    }
+});
+
+// 🔐 Login com código de verificação
+app.post('/api/usuarios/login', async (req, res) => {
+    try {
+        const { identificador, codigo } = req.body;
+
+        if (!identificador || !codigo) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'Identificador (email/telefone) e código são obrigatórios'
+            });
+        }
+
+        // Buscar usuário por email ou telefone
+        const usuario = await prisma.usuario.findFirst({
+            where: {
+                OR: [
+                    { email: identificador },
+                    { telefone: identificador }
+                ]
+            }
+        });
+
+        if (!usuario) {
+            return res.status(404).json({
+                sucesso: false,
+                erro: 'Usuário não encontrado'
+            });
+        }
+
+        if (!usuario.ativo) {
+            return res.status(403).json({
+                sucesso: false,
+                erro: 'Conta desativada'
+            });
+        }
+
+        // Verificar código
+        if (!usuario.codigo_verificacao || 
+            usuario.codigo_verificacao !== codigo ||
+            !usuario.codigo_expira_em ||
+            new Date() > usuario.codigo_expira_em) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'Código inválido ou expirado'
+            });
+        }
+
+        // Atualizar usuário (limpar código e atualizar último login)
+        const usuarioAtualizado = await prisma.usuario.update({
+            where: { id: usuario.id },
+            data: {
+                codigo_verificacao: null,
+                codigo_expira_em: null,
+                ultimo_login: new Date(),
+                email_verificado: identificador.includes('@') ? true : usuario.email_verificado,
+                telefone_verificado: !identificador.includes('@') ? true : usuario.telefone_verificado
+            },
+            select: {
+                id: true,
+                nome: true,
+                email: true,
+                telefone: true,
+                email_verificado: true,
+                telefone_verificado: true,
+                ultimo_login: true,
+                avatar_url: true,
+                provider: true
+            }
+        });
+
+        console.log(`🔐 Login realizado: ${usuario.nome} (${identificador})`);
+
+        res.json({
+            sucesso: true,
+            mensagem: 'Login realizado com sucesso',
+            token: `token_${usuario.id}_${Date.now()}`, // Em produção, use JWT real
+            usuario: usuarioAtualizado
+        });
+
+    } catch (error) {
+        console.error('❌ Erro no login:', error);
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro interno do servidor'
+        });
+    }
+});
+
+// 📋 Listar usuários
+app.get('/api/usuarios', async (req, res) => {
+    try {
+        const usuarios = await prisma.usuario.findMany({
+            where: { ativo: true },
+            select: {
+                id: true,
+                nome: true,
+                email: true,
+                telefone: true,
+                email_verificado: true,
+                telefone_verificado: true,
+                data_criacao: true,
+                ultimo_login: true,
+                provider: true,
+                avatar_url: true
+            },
+            orderBy: { data_criacao: 'desc' }
+        });
+
+        res.json({
+            sucesso: true,
+            total: usuarios.length,
+            usuarios: usuarios
+        });
+    } catch (error) {
+        console.error('❌ Erro ao listar usuários:', error);
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro interno do servidor'
+        });
+    }
+});
+
+// 🔍 Buscar usuário por ID
+app.get('/api/usuarios/:id', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        
+        if (isNaN(id)) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'ID inválido'
+            });
+        }
+
+        const usuario = await prisma.usuario.findFirst({
+            where: { 
+                id: id,
+                ativo: true 
+            },
+            select: {
+                id: true,
+                nome: true,
+                email: true,
+                telefone: true,
+                email_verificado: true,
+                telefone_verificado: true,
+                data_criacao: true,
+                ultimo_login: true,
+                provider: true,
+                avatar_url: true
+            }
+        });
+
+        if (!usuario) {
+            return res.status(404).json({
+                sucesso: false,
+                erro: 'Usuário não encontrado'
+            });
+        }
+
+        res.json({
+            sucesso: true,
+            usuario: usuario
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar usuário:', error);
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro interno do servidor'
+        });
+    }
+});
+
+// ✏️ Atualizar usuário
+app.put('/api/usuarios/:id', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const { nome, telefone } = req.body;
+        
+        if (isNaN(id)) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'ID inválido'
+            });
+        }
+
+        const usuario = await prisma.usuario.findFirst({
+            where: { 
+                id: id,
+                ativo: true 
+            }
+        });
+
+        if (!usuario) {
+            return res.status(404).json({
+                sucesso: false,
+                erro: 'Usuário não encontrado'
+            });
+        }
+
+        const dadosAtualizacao = {};
+        if (nome) dadosAtualizacao.nome = nome.trim();
+        if (telefone) dadosAtualizacao.telefone = telefone;
+
+        const usuarioAtualizado = await prisma.usuario.update({
+            where: { id: id },
+            data: dadosAtualizacao,
+            select: {
+                id: true,
+                nome: true,
+                email: true,
+                telefone: true
+            }
+        });
+
+        console.log(`📝 Usuário atualizado: ${usuarioAtualizado.nome} (ID: ${id})`);
+
+        res.json({
+            sucesso: true,
+            mensagem: 'Usuário atualizado com sucesso',
+            usuario: usuarioAtualizado
+        });
+    } catch (error) {
+        console.error('❌ Erro ao atualizar usuário:', error);
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro interno do servidor'
+        });
+    }
+});
+
+// 🗑️ Desativar usuário (soft delete)
+app.delete('/api/usuarios/:id', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        
+        if (isNaN(id)) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'ID inválido'
+            });
+        }
+
+        const usuario = await prisma.usuario.findFirst({
+            where: { 
+                id: id,
+                ativo: true 
+            }
+        });
+
+        if (!usuario) {
+            return res.status(404).json({
+                sucesso: false,
+                erro: 'Usuário não encontrado'
+            });
+        }
+
+        await prisma.usuario.update({
+            where: { id: id },
+            data: { ativo: false }
+        });
+
+        console.log(`🗑️ Usuário desativado: ${usuario.nome} (ID: ${id})`);
+
+        res.json({
+            sucesso: true,
+            mensagem: 'Usuário desativado com sucesso'
+        });
+    } catch (error) {
+        console.error('❌ Erro ao desativar usuário:', error);
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro interno do servidor'
+        });
+    }
+});
+
+// =======================================================
+// ROTAS DE FACEBOOK OAUTH 2.0
+// =======================================================
+
+// 🔗 Obter URL de login do Facebook
+app.get('/api/auth/facebook/url', (req, res) => {
+    try {
+        const { redirect_uri } = req.query;
+
+        if (!redirect_uri) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'redirect_uri é obrigatório'
+            });
+        }
+
+        const facebookAppId = process.env.FACEBOOK_APP_ID || 'sua_app_id_facebook';
+        const scope = 'email,public_profile';
+        
+        const authUrl = `https://www.facebook.com/v18.0/dialog/oauth?` +
+            `client_id=${facebookAppId}&` +
+            `redirect_uri=${encodeURIComponent(redirect_uri)}&` +
+            `scope=${scope}&` +
+            `response_type=code&` +
+            `state=worldbite_${Date.now()}`;
+
+        console.log('🔗 URL de login Facebook gerada');
+
+        res.json({
+            sucesso: true,
+            auth_url: authUrl,
+            app_id: facebookAppId,
+            redirect_uri: redirect_uri
+        });
+
+    } catch (error) {
+        console.error('❌ Erro ao gerar URL Facebook:', error);
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro interno do servidor'
+        });
+    }
+});
+
+// 📱 Callback do Facebook OAuth
+app.post('/api/auth/facebook/callback', async (req, res) => {
+    try {
+        const { code, redirect_uri } = req.body;
+
+        if (!code || !redirect_uri) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'Código e redirect_uri são obrigatórios'
+            });
+        }
+
+        console.log('📱 Callback Facebook recebido');
+        console.log(`Código: ${code.substring(0, 20)}...`);
+
+        // Simular dados do Facebook (em produção, faça a troca real do código por token)
+        const facebookUser = {
+            id: `fb_${Date.now()}`,
+            name: 'Usuário Facebook',
+            email: 'usuario.facebook@exemplo.com',
+            picture: {
+                data: {
+                    url: 'https://via.placeholder.com/150'
+                }
+            }
+        };
+
+        // Buscar ou criar usuário
+        let usuario = await prisma.usuario.findUnique({
+            where: { facebook_id: facebookUser.id }
+        });
+        
+        let novoUsuario = false;
+
+        if (!usuario) {
+            // Verificar se já existe usuário com mesmo email
+            const usuarioExistente = await prisma.usuario.findUnique({
+                where: { email: facebookUser.email }
+            });
+
+            if (usuarioExistente) {
+                // Vincular conta Facebook ao usuário existente
+                usuario = await prisma.usuario.update({
+                    where: { id: usuarioExistente.id },
+                    data: {
+                        facebook_id: facebookUser.id,
+                        avatar_url: facebookUser.picture.data.url,
+                        provider: 'facebook',
+                        ultimo_login: new Date(),
+                        email_verificado: true
+                    }
+                });
+            } else {
+                // Criar novo usuário
+                usuario = await prisma.usuario.create({
+                    data: {
+                        nome: facebookUser.name,
+                        email: facebookUser.email,
+                        facebook_id: facebookUser.id,
+                        avatar_url: facebookUser.picture.data.url,
+                        provider: 'facebook',
+                        email_verificado: true,
+                        ativo: true,
+                        ultimo_login: new Date()
+                    }
+                });
+                novoUsuario = true;
+            }
+            
+            console.log(`🆕 ${novoUsuario ? 'Novo usuário criado' : 'Conta vinculada'} via Facebook: ${usuario.nome}`);
+        } else {
+            // Atualizar último login
+            usuario = await prisma.usuario.update({
+                where: { id: usuario.id },
+                data: { ultimo_login: new Date() }
+            });
+            console.log(`🔐 Login via Facebook: ${usuario.nome}`);
+        }
+
+        const token = `facebook_token_${usuario.id}_${Date.now()}`;
+
+        res.json({
+            sucesso: true,
+            mensagem: 'Login com Facebook realizado com sucesso',
+            token: token,
+            usuario: {
+                id: usuario.id,
+                nome: usuario.nome,
+                email: usuario.email,
+                avatar_url: usuario.avatar_url,
+                provider: usuario.provider,
+                email_verificado: usuario.email_verificado
+            },
+            novo_usuario: novoUsuario
+        });
+
+    } catch (error) {
+        console.error('❌ Erro no callback Facebook:', error);
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro interno do servidor'
+        });
+    }
+});
+
+// 📊 Status da API
+app.get('/api/status', async (req, res) => {
+    try {
+        const totalUsuarios = await prisma.usuario.count({
+            where: { ativo: true }
+        });
+
+        const totalRestaurantes = await prisma.restaurante.count({
+            where: { ativo: true }
+        });
+
+        res.json({
+            status: 'OK',
+            mensagem: '🚀 World Bite API - Servidor com PostgreSQL',
+            modo: 'PRODUÇÃO (Dados persistentes)',
+            usuarios_cadastrados: totalUsuarios,
+            restaurantes_cadastrados: totalRestaurantes,
+            banco_dados: 'PostgreSQL + Prisma',
+            apis: {
+                usuarios: {
+                    cadastro: 'POST /api/usuarios/cadastro',
+                    codigo_email: 'POST /api/usuarios/codigo-email',
+                    codigo_sms: 'POST /api/usuarios/codigo-sms',
+                    login: 'POST /api/usuarios/login',
+                    listar: 'GET /api/usuarios',
+                    buscar: 'GET /api/usuarios/:id',
+                    atualizar: 'PUT /api/usuarios/:id',
+                    desativar: 'DELETE /api/usuarios/:id'
+                },
+                facebook: {
+                    login_url: 'GET /api/auth/facebook/url?redirect_uri=URL',
+                    callback: 'POST /api/auth/facebook/callback'
+                },
+                restaurantes: {
+                    send_verification: 'POST /api/send-verification-code',
+                    verify_code: 'POST /api/verify-code',
+                    login_rapido: 'POST /api/login-rapido'
+                }
+            },
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error('❌ Erro no status:', error);
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro interno do servidor'
+        });
+    }
+});
+
+// =======================================================
 // ROTAS PÚBLICAS (CADASTRO E LOGIN)
 // =======================================================
 
@@ -174,6 +856,16 @@ app.post('/api/login-rapido', async (req, res) => {
 
 // 🔑 INTEGRAÇÃO DO CRUD DE PRATOS
 app.use('/api/restaurante/prato', pratoRoutes); 
+
+// 🏠 Rota principal
+app.get('/', (req, res) => {
+    res.json({
+        mensagem: 'World Bite API - Servidor Unificado',
+        status: 'Funcionando com PostgreSQL + Prisma',
+        documentacao: 'GET /api/status',
+        versao: '2.0.0 - Consolidado'
+    });
+});
 
 // 5. Iniciar o servidor
 app.listen(PORT, () => {

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./LoginPageRestaurante.css";
+import "../loginPage/login.css"; // Para os estilos da logo
 
 export default function LoginPageRestaurante() {
   const [cnpj, setCnpj] = useState("");
@@ -115,6 +116,9 @@ export default function LoginPageRestaurante() {
 
   return (
     <>
+      <Link to="/" className="logo-top-left">
+        <img src="/logoNome.jpeg" alt="World Bite Logo" />
+      </Link>
       <div className="bg-img" aria-hidden="true"></div>
       <div className="center-container">
         <div className="login-card">

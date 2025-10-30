@@ -26,7 +26,7 @@ export default function Home() {
         onAddEndereco={endereco => setEnderecos([...enderecos, endereco])}
       />
       <header className="home-header">
-        <img src="/logo.png" alt="Logo" className="home-logo" />
+        <img src="/logoNome.jpeg" alt="World Bite Logo" className="home-logo" />
         <nav className="home-nav">
           <a href="#" onClick={e => { e.preventDefault(); setModalOpen(true); }}>Endereços</a>
           {enderecos.map((end, idx) => (
@@ -39,8 +39,8 @@ export default function Home() {
           <a href="/tela-empresa">Para Empresas</a>
         </nav>
         <div className="home-actions">
-          <a href="/login" className="home-link">criar conta</a>
-          <a href="/cliente"><button className="home-btn">Entrar</button></a>
+          <a href="/cadastro-usuario" className="home-link">criar conta</a>
+          <a href="/login"><button className="home-btn">Entrar</button></a>
         </div>
       </header>
       <main className="home-main">

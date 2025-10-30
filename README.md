@@ -315,21 +315,90 @@ lsof -i :3000
 
 ```
 world-bite/
-├── backend/
+├── backend/                         # 🖥️ Servidor Backend (Node.js + Express)
+│   ├── .env                         # Variáveis de ambiente
 │   ├── server.js                    # Servidor principal (com PostgreSQL)
-│   ├── server-usuarios-academico.js # Servidor acadêmico (sem banco)
-│   ├── config/
+│   ├── server-sem-banco.js          # Servidor acadêmico (sem banco)
+│   ├── package.json                 # Dependências do backend
+│   ├── config/                      # ⚙️ Configurações
 │   │   ├── database.js              # Configuração Prisma
-│   │   └── logger.js                # Sistema de logs
-│   ├── services/
+│   │   ├── logger.js                # Sistema de logs
+│   │   ├── redis.js                 # Configuração Redis
+│   │   └── vonage.js                # Configuração SMS
+│   ├── middlewares/                 # 🛡️ Middlewares
+│   │   └── authMiddleware.js        # Middleware de autenticação
+│   ├── routes/                      # 🛤️ Rotas da API
+│   │   ├── authRoutes.js            # Rotas de autenticação
+│   │   └── pratos.js                # Rotas de pratos/cardápio
+│   ├── services/                    # 🔧 Serviços de negócio
 │   │   ├── authService.js           # Lógica de autenticação
-│   │   └── emailService.js          # Envio de emails
-│   └── prisma/
-│       └── schema.prisma            # Schema do banco
-├── src/                             # Frontend React
-├── public/                          # Arquivos estáticos
-└── README.md                        # Esta documentação
+│   │   ├── emailService.js          # Envio de emails
+│   │   ├── facebookService.js       # Integração Facebook
+│   │   ├── usuarioService.js        # Serviços de usuário
+│   │   └── verificationService.js   # Verificação de código
+│   └── prisma/                      # 🗄️ ORM e Banco de Dados
+│       ├── schema.prisma            # Schema do banco
+│       └── migrations/              # Migrações do banco
+│           ├── migration_lock.toml
+│           ├── 20250916094036_init_restaurante/
+│           └── 20250930035340_criar_tabela_pratos/
+├── src/                             # ⚛️ Frontend React
+│   ├── App.jsx                      # Componente principal
+│   ├── App.css                      # Estilos globais
+│   ├── main.jsx                     # Ponto de entrada React + Vite
+│   ├── index.css                    # Estilos base
+│   ├── assets/                      # 🖼️ Recursos estáticos
+│   │   └── react.svg                # Logo React
+│   ├── components/                  # 🧩 Componentes reutilizáveis
+│   │   ├── PrivateRoute.jsx         # Rota privada
+│   │   └── FacebookLogin/           # Componente login Facebook
+│   │       ├── FacebookLogin.jsx
+│   │       └── FacebookLogin.css
+│   ├── home/                        # 🏠 Página inicial
+│   │   ├── home.jsx
+│   │   ├── home.css
+│   │   └── endereco/                # Modal de endereço
+│   │       ├── enderecoModal.jsx
+│   │       └── enderecoModal.css
+│   ├── loginPage/                   # 🔐 Páginas de login
+│   │   ├── login.jsx
+│   │   ├── login.css
+│   │   ├── FacebookLoginButton.jsx
+│   │   └── LoginPageWithFacebook.jsx
+│   ├── loginpagerestaurante/        # 🏢 Login restaurante
+│   │   ├── LoginPageRestaurante.jsx
+│   │   └── LoginPageRestaurante.css
+│   ├── cadastroRestaurante/         # 📝 Cadastro restaurante
+│   │   ├── CadastroRestaurante.jsx
+│   │   └── CadastroRestaurante.css
+│   ├── empresas/                    # 🏪 Gestão empresarial
+│   │   ├── empresas.css
+│   │   ├── CadastroPrato.jsx        # Cadastro de pratos
+│   │   ├── CadastroRestaurante.jsx  # Cadastro restaurante
+│   │   ├── GerenciarCardapio.jsx    # Gestão do cardápio
+│   │   └── PainelRestaurante.jsx    # Painel administrativo
+│   ├── pageCliente/                 # 👤 Área do cliente
+│   │   ├── pageCliente.jsx
+│   │   ├── pageCliente.css
+│   │   ├── index.tsx
+│   │   └── notFound.tsx
+│   ├── pedidos/                     # 🛒 Sistema de pedidos
+│   │   ├── pedidos.jsx
+│   │   └── pedidos.css
+│   ├── TelaEmpresa/                 # 🏢 Tela da empresa
+│   │   ├── TelaEmpresa.jsx
+│   │   └── TelaEmpresa.css
+│   ├── pages/                       # 📄 Páginas especiais
+│   │   └── FacebookCallback.jsx     # Callback Facebook OAuth
+│   └── examples/                    # 📚 Exemplos
+│       └── FacebookLoginExample.jsx
+├── public/                          # 🌐 Arquivos públicos
+│   ├── index.html                   # HTML base
+│   ├── vite.svg                     # Logo Vite
+│   ├── logo.png                     # Logo do projeto
+│   └── logoNome.jpeg                # Logo com nome
+├── package.json                     # 📦 Dependências frontend
+├── vite.config.js                   # ⚡ Configuração Vite
+├── eslint.config.js                 # 🔍 Configuração ESLint
+└── README.md                        # 📖 Esta documentação
 ```
-
-
-

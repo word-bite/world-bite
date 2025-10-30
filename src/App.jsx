@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { PrivateRoute } from "./components/PrivateRoute"; 
 
 import LoginPage from "./loginPage/login";
+import CadastroUsuario from "./pages/CadastroUsuario";
 import LoginPageRestaurante from "./loginpagerestaurante/LoginPageRestaurante";
 import CadastroRestaurante from "./CadastroRestaurante/CadastroRestaurante";
 import TelaEmpresa from "./TelaEmpresa/TelaEmpresa";
@@ -14,6 +15,7 @@ import GerenciarCardapio from "./empresas/GerenciarCardapio";
 import Pedido from "./pedidos/pedidos";
 import Home from "./Home/home";
 import PageCliente from "./pageCliente/pageCliente";
+import FacebookCallback from "./pages/FacebookCallback";
 
 export default function App() {
   return (
@@ -22,8 +24,10 @@ export default function App() {
         {/* ROTAS PÚBLICAS (Acesso Livre) */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/cadastro-usuario" element={<CadastroUsuario />} />
         <Route path="/login-restaurante" element={<LoginPageRestaurante />} />
         <Route path="/cadastro-restaurante" element={<CadastroRestaurante />} />
+        <Route path="/auth/facebook/callback" element={<FacebookCallback />} />
         <Route path="/pedidos" element={<Pedido />} />
         <Route path="/cliente" element={<PageCliente />} />
 
