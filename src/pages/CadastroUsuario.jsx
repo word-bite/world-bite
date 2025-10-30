@@ -1,34 +1,26 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import "./login.css";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "../loginPage/login.css"; // Reutilizar estilos do login
 
-export default function LoginPage() {
+export default function CadastroUsuario() {
   const [isLoading, setIsLoading] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [showPhoneForm, setShowPhoneForm] = useState(false);
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
-  const [step, setStep] = useState('login');
-  const [user, setUser] = useState(null);
+  const [step, setStep] = useState('signup'); // 'signup' -> 'verify' -> 'complete'
+  const navigate = useNavigate();
 
   const API_BASE_URL = 'http://localhost:3000';
 
-  useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    const userData = localStorage.getItem('user_data');
-    
-    if (token && userData) {
-      setUser(JSON.parse(userData));
-    }
-  }, []);
-
-  const handleFacebookLogin = async () => {
+  const handleFacebookSignup = async () => {
     try {
       setIsLoading(true);
       const redirectUri = `${window.location.origin}/auth/facebook/callback`;
       
-      console.log('🚀 Iniciando login Facebook...');
+      console.log('🚀 Iniciando cadastro com Facebook...');
       
       const response = await fetch(
         `${API_BASE_URL}/api/auth/facebook/url?redirect_uri=${encodeURIComponent(redirectUri)}`
@@ -44,35 +36,80 @@ export default function LoginPage() {
         console.log('📍 Redirecionando para Facebook...');
         window.location.href = data.auth_url;
       } else {
-        throw new Error(data.erro || 'Erro ao gerar URL de login');
+        throw new Error(data.erro || 'Erro ao gerar URL de cadastro');
       }
     } catch (error) {
-      console.error('❌ Erro no login Facebook:', error);
+      console.error('❌ Erro no cadastro Facebook:', error);
+      alert('Erro ao iniciar cadastro com Facebook: ' + error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleEmailLogin = async () => {
+  const handleEmailSignup = async () => {
     try {
       setIsLoading(true);
       
-      if (step === 'login') {
-        const response = await fetch(`${API_BASE_URL}/api/usuarios/codigo-email`, {
+      if (step === 'signup') {
+        // Validar dados
+        if (!name.trim()) {
+          alert('Por favor, digite seu nome completo');
+          return;
+        }
+        if (!email.trim()) {
+          alert('Por favor, digite seu email');
+          return;
+        }
+
+        // Primeiro, cadastrar o usuário
+        const cadastroResponse = await fetch(`${API_BASE_URL}/api/usuarios/cadastro`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
+          body: JSON.stringify({ 
+            nome: name.trim(),
+            email: email.trim()
+          })
         });
         
-        const data = await response.json();
+        const cadastroData = await cadastroResponse.json();
         
-        if (data.sucesso) {
-          alert(`Código enviado para ${email}! (Código para teste: ${data.codigoParaTeste})`);
-          setStep('verify');
+        if (cadastroData.sucesso) {
+          // Agora enviar código de verificação
+          const codigoResponse = await fetch(`${API_BASE_URL}/api/usuarios/codigo-email`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email.trim() })
+          });
+          
+          const codigoData = await codigoResponse.json();
+          
+          if (codigoData.sucesso) {
+            alert(`Código enviado para ${email}! (Código para teste: ${codigoData.codigoParaTeste})`);
+            setStep('verify');
+          } else {
+            throw new Error(codigoData.erro || 'Erro ao enviar código');
+          }
+        } else if (cadastroResponse.status === 409) {
+          // Usuário já existe, apenas enviar código
+          const codigoResponse = await fetch(`${API_BASE_URL}/api/usuarios/codigo-email`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email.trim() })
+          });
+          
+          const codigoData = await codigoResponse.json();
+          
+          if (codigoData.sucesso) {
+            alert(`Este email já está cadastrado. Código enviado para ${email}! (Código para teste: ${codigoData.codigoParaTeste})`);
+            setStep('verify');
+          } else {
+            throw new Error(codigoData.erro || 'Erro ao enviar código');
+          }
         } else {
-          throw new Error(data.erro || 'Erro ao enviar código');
+          throw new Error(cadastroData.erro || 'Erro no cadastro');
         }
-      } else {
+      } else if (step === 'verify') {
+        // Verificar código e fazer login
         const response = await fetch(`${API_BASE_URL}/api/usuarios/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -87,38 +124,84 @@ export default function LoginPage() {
         if (data.sucesso) {
           localStorage.setItem('auth_token', data.token);
           localStorage.setItem('user_data', JSON.stringify(data.usuario));
-          setUser(data.usuario);
+          alert(`Bem-vindo, ${data.usuario.nome}! Conta criada com sucesso.`);
+          navigate('/'); // Redirecionar para home
         } else {
           throw new Error(data.erro || 'Código inválido');
         }
       }
     } catch (error) {
-      console.error('❌ Erro no login por email:', error);
+      console.error('❌ Erro no cadastro por email:', error);
+      alert('Erro no cadastro: ' + error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handlePhoneLogin = async () => {
+  const handlePhoneSignup = async () => {
     try {
       setIsLoading(true);
       
-      if (step === 'login') {
-        const response = await fetch(`${API_BASE_URL}/api/usuarios/codigo-sms`, {
+      if (step === 'signup') {
+        // Validar dados
+        if (!name.trim()) {
+          alert('Por favor, digite seu nome completo');
+          return;
+        }
+        if (!phone.trim()) {
+          alert('Por favor, digite seu telefone');
+          return;
+        }
+
+        // Primeiro, cadastrar o usuário
+        const cadastroResponse = await fetch(`${API_BASE_URL}/api/usuarios/cadastro`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ telefone: phone })
+          body: JSON.stringify({ 
+            nome: name.trim(),
+            telefone: phone.trim()
+          })
         });
         
-        const data = await response.json();
+        const cadastroData = await cadastroResponse.json();
         
-        if (data.sucesso) {
-          alert(`Código enviado para ${phone}! (Código para teste: ${data.codigoParaTeste})`);
-          setStep('verify');
+        if (cadastroData.sucesso) {
+          // Agora enviar código de verificação
+          const codigoResponse = await fetch(`${API_BASE_URL}/api/usuarios/codigo-sms`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ telefone: phone.trim() })
+          });
+          
+          const codigoData = await codigoResponse.json();
+          
+          if (codigoData.sucesso) {
+            alert(`Código enviado para ${phone}! (Código para teste: ${codigoData.codigoParaTeste})`);
+            setStep('verify');
+          } else {
+            throw new Error(codigoData.erro || 'Erro ao enviar código');
+          }
+        } else if (cadastroResponse.status === 409) {
+          // Usuário já existe, apenas enviar código
+          const codigoResponse = await fetch(`${API_BASE_URL}/api/usuarios/codigo-sms`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ telefone: phone.trim() })
+          });
+          
+          const codigoData = await codigoResponse.json();
+          
+          if (codigoData.sucesso) {
+            alert(`Este telefone já está cadastrado. Código enviado para ${phone}! (Código para teste: ${codigoData.codigoParaTeste})`);
+            setStep('verify');
+          } else {
+            throw new Error(codigoData.erro || 'Erro ao enviar código');
+          }
         } else {
-          throw new Error(data.erro || 'Erro ao enviar código');
+          throw new Error(cadastroData.erro || 'Erro no cadastro');
         }
-      } else {
+      } else if (step === 'verify') {
+        // Verificar código e fazer login
         const response = await fetch(`${API_BASE_URL}/api/usuarios/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -133,73 +216,29 @@ export default function LoginPage() {
         if (data.sucesso) {
           localStorage.setItem('auth_token', data.token);
           localStorage.setItem('user_data', JSON.stringify(data.usuario));
-          setUser(data.usuario);
+          alert(`Bem-vindo, ${data.usuario.nome}! Conta criada com sucesso.`);
+          navigate('/'); // Redirecionar para home
         } else {
           throw new Error(data.erro || 'Código inválido');
         }
       }
     } catch (error) {
-      console.error('❌ Erro no login por telefone:', error);
+      console.error('❌ Erro no cadastro por telefone:', error);
+      alert('Erro no cadastro: ' + error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_data');
-    setUser(null);
-    setStep('login');
+  const resetForm = () => {
+    setStep('signup');
     setShowEmailForm(false);
     setShowPhoneForm(false);
+    setName('');
     setEmail('');
     setPhone('');
     setCode('');
   };
-
-  if (user) {
-    return (
-      <>
-        <Link to="/" className="logo-top-left">
-          <img src="/logoNome.jpeg" alt="World Bite Logo" />
-        </Link>
-        <div className="bg-img" aria-hidden="true"></div>
-        <div className="bg-img-country1" aria-hidden="true"></div>
-        <div className="bg-img-country2" aria-hidden="true"></div>
-        <div className="center-container">
-          <div className="login-card">
-            <h1 className="login-headline">✅ Bem-vindo!</h1>
-            <div className="user-info">
-              {user.avatar_url && (
-                <img 
-                  src={user.avatar_url} 
-                  alt="Avatar" 
-                  style={{ 
-                    width: '80px', 
-                    height: '80px', 
-                    borderRadius: '50%',
-                    border: '3px solid #1877f2',
-                    marginBottom: '16px'
-                  }}
-                />
-              )}
-              <p><strong>Nome:</strong> {user.nome}</p>
-              <p><strong>Email:</strong> {user.email || 'Não informado'}</p>
-              <p><strong>Telefone:</strong> {user.telefone || 'Não informado'}</p>
-              {user.provider && <p><strong>Provider:</strong> {user.provider}</p>}
-            </div>
-            <button 
-              onClick={handleLogout}
-              className="login-btn small"
-              style={{ width: '100%', marginTop: '20px' }}
-            >
-              Sair
-            </button>
-          </div>
-        </div>
-      </>
-    );
-  }
 
   return (
     <>
@@ -211,18 +250,19 @@ export default function LoginPage() {
       <div className="bg-img-country2" aria-hidden="true"></div>
       <div className="center-container">
         <div className="login-card">
-          <h1 className="login-headline">Entre e descubra um novo mundo</h1>
+          <h1 className="login-headline">Criar sua conta no World Bite</h1>
+          
           <button className="login-btn google">
             <img
               src="https://www.gstatic.com/marketing-cms/assets/images/d5/dc/cfe9ce8b4425b410b49b7f2dd3f3/g.webp=s96-fcrop64=1,00000000ffffffff-rw"
               alt="Google"
             />
-            Continuar com Google
+            Criar conta com Google
           </button>
           
           <button 
             className="login-btn facebook" 
-            onClick={handleFacebookLogin}
+            onClick={handleFacebookSignup}
             disabled={isLoading}
           >
             {isLoading ? (
@@ -237,19 +277,27 @@ export default function LoginPage() {
                 >
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                 </svg>
-                Continuar com Facebook
+                Criar conta com Facebook
               </>
             )}
           </button>
+
           <div className="divider">
             <span>ou</span>
           </div>
 
           {showEmailForm && (
             <div className="auth-form">
-              <h3>Login com Email</h3>
-              {step === 'login' ? (
+              <h3>Criar conta com Email</h3>
+              {step === 'signup' ? (
                 <>
+                  <input
+                    type="text"
+                    placeholder="Nome completo"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="auth-input"
+                  />
                   <input
                     type="email"
                     placeholder="Digite seu email"
@@ -258,11 +306,11 @@ export default function LoginPage() {
                     className="auth-input"
                   />
                   <button 
-                    onClick={handleEmailLogin}
-                    disabled={!email || isLoading}
+                    onClick={handleEmailSignup}
+                    disabled={!name || !email || isLoading}
                     className="auth-submit-btn"
                   >
-                    {isLoading ? 'Enviando...' : 'Enviar Código'}
+                    {isLoading ? 'Criando conta...' : 'Criar Conta'}
                   </button>
                 </>
               ) : (
@@ -277,21 +325,16 @@ export default function LoginPage() {
                     maxLength="6"
                   />
                   <button 
-                    onClick={handleEmailLogin}
+                    onClick={handleEmailSignup}
                     disabled={code.length !== 6 || isLoading}
                     className="auth-submit-btn"
                   >
-                    {isLoading ? 'Verificando...' : 'Fazer Login'}
+                    {isLoading ? 'Verificando...' : 'Verificar e Entrar'}
                   </button>
                 </>
               )}
               <button 
-                onClick={() => {
-                  setShowEmailForm(false);
-                  setStep('login');
-                  setEmail('');
-                  setCode('');
-                }}
+                onClick={resetForm}
                 className="auth-back-btn"
               >
                 ← Voltar
@@ -301,9 +344,16 @@ export default function LoginPage() {
 
           {showPhoneForm && (
             <div className="auth-form">
-              <h3>Login com Celular</h3>
-              {step === 'login' ? (
+              <h3>Criar conta com Celular</h3>
+              {step === 'signup' ? (
                 <>
+                  <input
+                    type="text"
+                    placeholder="Nome completo"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="auth-input"
+                  />
                   <input
                     type="tel"
                     placeholder="Digite seu celular (+5511999999999)"
@@ -312,11 +362,11 @@ export default function LoginPage() {
                     className="auth-input"
                   />
                   <button 
-                    onClick={handlePhoneLogin}
-                    disabled={!phone || isLoading}
+                    onClick={handlePhoneSignup}
+                    disabled={!name || !phone || isLoading}
                     className="auth-submit-btn"
                   >
-                    {isLoading ? 'Enviando...' : 'Enviar Código SMS'}
+                    {isLoading ? 'Criando conta...' : 'Criar Conta'}
                   </button>
                 </>
               ) : (
@@ -331,21 +381,16 @@ export default function LoginPage() {
                     maxLength="6"
                   />
                   <button 
-                    onClick={handlePhoneLogin}
+                    onClick={handlePhoneSignup}
                     disabled={code.length !== 6 || isLoading}
                     className="auth-submit-btn"
                   >
-                    {isLoading ? 'Verificando...' : 'Fazer Login'}
+                    {isLoading ? 'Verificando...' : 'Verificar e Entrar'}
                   </button>
                 </>
               )}
               <button 
-                onClick={() => {
-                  setShowPhoneForm(false);
-                  setStep('login');
-                  setPhone('');
-                  setCode('');
-                }}
+                onClick={resetForm}
                 className="auth-back-btn"
               >
                 ← Voltar
@@ -359,30 +404,26 @@ export default function LoginPage() {
                 className="login-btn small"
                 onClick={() => setShowPhoneForm(true)}
               >
-                Entrar com Celular
+                Criar com Celular
               </button>
               <button 
                 className="login-btn small"
                 onClick={() => setShowEmailForm(true)}
               >
-                Entrar com E-mail
+                Criar com E-mail
               </button>
             </div>
           )}
+
           <p className="login-footer">
-            Ao continuar, você concorda com os{" "}
+            Ao criar uma conta, você concorda com os{" "}
             <a href="#">Termos de Uso</a> e a{" "}
             <a href="#">Política de Privacidade</a>.
           </p>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
-            <Link to="/cadastro-usuario" className="login-btn small" style={{ textAlign: "center", backgroundColor: "#28a745" }}>
-              🆕 Criar nova conta
-            </Link>
-            <Link to="/cadastro-restaurante" className="login-btn small" style={{ textAlign: "center" }}>
-              Cadastrar Restaurante
-            </Link>
-          </div>
+
+          <Link to="/login" className="auth-back-btn" style={{marginTop: 16, textAlign: "center"}}>
+            Já tem uma conta? Fazer login
+          </Link>
         </div>
       </div>
     </>

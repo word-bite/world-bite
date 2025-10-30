@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./CadastroRestaurante.css";
+import "../loginPage/login.css"; // Para os estilos da logo
 
 export default function CadastroRestaurante() {
   const [formData, setFormData] = useState({
@@ -64,7 +65,11 @@ export default function CadastroRestaurante() {
   };
 
   return (
-    <div className="cadastro-bg">
+    <>
+      <Link to="/" className="logo-top-left">
+        <img src="/logoNome.jpeg" alt="World Bite Logo" />
+      </Link>
+      <div className="cadastro-bg">
       <div className="cadastro-center-container">
         <div className="cadastro-card">
           <h1 className="cadastro-headline">Cadastrar Restaurante</h1>
@@ -131,5 +136,6 @@ export default function CadastroRestaurante() {
         </div>
       </div>
     </div>
+    </>
   );
 }

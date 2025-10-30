@@ -86,7 +86,7 @@ const LoginPage = () => {
       
       {/* Logo */}
       <div className="logo-top-left">
-        <img src="/logompng.jpeg" alt="Logo" />
+        <img src="/logoNome.jpeg" alt="World Bite Logo" />
       </div>
 
       <div className="center-container">

@@ -61,3 +61,24 @@ model Prato {
 
   @@map("pratos")
 }
+
+// Modelo Usuario para autenticação
+model Usuario {
+  id                    Int       @id @default(autoincrement())
+  nome                  String    @db.VarChar(100)
+  email                 String?   @unique @db.VarChar(255)
+  telefone              String?   @unique @db.VarChar(20)
+  facebook_id           String?   @unique @db.VarChar(255)
+  avatar_url            String?   @db.VarChar(500)
+  provider              String?   @default("local") @db.VarChar(50) // 'local', 'facebook'
+  codigo_verificacao    String?   @db.VarChar(10)
+  codigo_expira_em      DateTime? @db.Timestamptz
+  email_verificado      Boolean   @default(false)
+  telefone_verificado   Boolean   @default(false)
+  ativo                 Boolean   @default(true)
+  data_criacao          DateTime  @default(now()) @db.Timestamptz
+  data_atualizacao      DateTime  @updatedAt @db.Timestamptz
+  ultimo_login          DateTime? @db.Timestamptz
+
+  @@map("usuarios")
+}

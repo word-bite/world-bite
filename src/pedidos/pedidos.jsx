@@ -23,7 +23,7 @@ const Pedido = () => {
       <header className="header">
         {/* Logo */}
         <div className="header-logo">
-          <img src="/logo.png" alt="WorldBite Logo" className="logo-img" />
+          <img src="/logoNome.jpeg" alt="World Bite Logo" className="logo-img" />
         </div>
 
         {/* Barra de busca */}
