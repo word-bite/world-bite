@@ -67,7 +67,7 @@ export default function LoginPage() {
         const data = await response.json();
         
         if (data.sucesso) {
-          alert(`Código enviado para ${email}! (Código para teste: ${data.codigoParaTeste})`);
+          alert(`Código de verificação enviado para ${email}! Verifique seu email.`);
           setStep('verify');
         } else {
           throw new Error(data.erro || 'Erro ao enviar código');
@@ -113,7 +113,7 @@ export default function LoginPage() {
         const data = await response.json();
         
         if (data.sucesso) {
-          alert(`Código enviado para ${phone}! (Código para teste: ${data.codigoParaTeste})`);
+          alert(`Código de verificação enviado para ${phone}! Verifique suas mensagens.`);
           setStep('verify');
         } else {
           throw new Error(data.erro || 'Erro ao enviar código');
@@ -375,9 +375,9 @@ export default function LoginPage() {
             <a href="#">Política de Privacidade</a>.
           </p>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px', width: '200px' }}>
             <Link to="/cadastro-usuario" className="login-btn small" style={{ textAlign: "center", backgroundColor: "#28a745" }}>
-              🆕 Criar nova conta
+              Criar nova conta
             </Link>
             <Link to="/cadastro-restaurante" className="login-btn small" style={{ textAlign: "center" }}>
               Cadastrar Restaurante

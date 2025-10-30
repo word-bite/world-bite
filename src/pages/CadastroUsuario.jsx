@@ -84,7 +84,7 @@ export default function CadastroUsuario() {
           const codigoData = await codigoResponse.json();
           
           if (codigoData.sucesso) {
-            alert(`Código enviado para ${email}! (Código para teste: ${codigoData.codigoParaTeste})`);
+            alert(`Código de verificação enviado para ${email}! Verifique seu email.`);
             setStep('verify');
           } else {
             throw new Error(codigoData.erro || 'Erro ao enviar código');
@@ -100,7 +100,7 @@ export default function CadastroUsuario() {
           const codigoData = await codigoResponse.json();
           
           if (codigoData.sucesso) {
-            alert(`Este email já está cadastrado. Código enviado para ${email}! (Código para teste: ${codigoData.codigoParaTeste})`);
+            alert(`Este email já está cadastrado. Código de verificação enviado para ${email}! Verifique seu email.`);
             setStep('verify');
           } else {
             throw new Error(codigoData.erro || 'Erro ao enviar código');
@@ -176,7 +176,7 @@ export default function CadastroUsuario() {
           const codigoData = await codigoResponse.json();
           
           if (codigoData.sucesso) {
-            alert(`Código enviado para ${phone}! (Código para teste: ${codigoData.codigoParaTeste})`);
+            alert(`Código de verificação enviado para ${phone}! Verifique suas mensagens.`);
             setStep('verify');
           } else {
             throw new Error(codigoData.erro || 'Erro ao enviar código');
@@ -192,7 +192,7 @@ export default function CadastroUsuario() {
           const codigoData = await codigoResponse.json();
           
           if (codigoData.sucesso) {
-            alert(`Este telefone já está cadastrado. Código enviado para ${phone}! (Código para teste: ${codigoData.codigoParaTeste})`);
+            alert(`Este telefone já está cadastrado. Código de verificação enviado para ${phone}! Verifique suas mensagens.`);
             setStep('verify');
           } else {
             throw new Error(codigoData.erro || 'Erro ao enviar código');
