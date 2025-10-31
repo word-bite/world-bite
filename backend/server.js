@@ -758,7 +758,58 @@ app.get('/api/status', async (req, res) => {
 
 // --- Rota para criar um novo restaurante (CRUD: CREATE) ---
 app.post('/restaurantes', async (req, res) => {
-    // ... CÓDIGO DA ROTA DE CADASTRO DE RESTAURANTE ... (inalterado)
+    try {
+        const {
+            nome,
+            cnpj,
+            descricao,
+            endereco,
+            telefone_contato,
+            email_contato,
+            pais_id,
+            horario_abertura,
+            horario_fechamento
+        } = req.body;
+
+        // Validação básica
+        if (!nome || !cnpj || !endereco) {
+            return res.status(400).json({ error: 'Nome, CNPJ e Endereço são obrigatórios.' });
+        }
+
+        // Verifica se já existe restaurante com o mesmo CNPJ
+        const existente = await prisma.restaurante.findUnique({ where: { cnpj } });
+        if (existente) {
+            return res.status(409).json({ error: 'Já existe restaurante com esse CNPJ.' });
+        }
+
+        // Cria restaurante
+        const horario_abertura_dt = horario_abertura
+        ? `2025-01-01T${horario_abertura}:00.000Z`
+        : null;
+        const horario_fechamento_dt = horario_fechamento
+        ? `2025-01-01T${horario_fechamento}:00.000Z`
+        : null;
+
+        const novoRestaurante = await prisma.restaurante.create({
+        data: {
+            nome,
+            cnpj,
+            descricao,
+            endereco,
+            telefone_contato,
+            email_contato,
+            pais_id,
+            horario_abertura: horario_abertura_dt,
+            horario_fechamento: horario_fechamento_dt,
+            ativo: true
+        }
+        });
+
+        res.status(201).json(novoRestaurante);
+    } catch (error) {
+        console.error('Erro ao cadastrar restaurante:', error);
+        res.status(500).json({ error: 'Erro interno ao cadastrar restaurante.' });
+    }
 });
 
 // --- Rota para enviar o código de verificação por CNPJ ---
