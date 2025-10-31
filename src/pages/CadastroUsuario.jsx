@@ -15,6 +15,11 @@ export default function CadastroUsuario() {
 
   const API_BASE_URL = 'http://localhost:3000';
 
+  // Definir título da página para debug
+  React.useEffect(() => {
+    document.title = "📝 Cadastro - World Bite";
+  }, []);
+
   const handleFacebookSignup = async () => {
     try {
       setIsLoading(true);
@@ -125,7 +130,7 @@ export default function CadastroUsuario() {
           localStorage.setItem('auth_token', data.token);
           localStorage.setItem('user_data', JSON.stringify(data.usuario));
           alert(`Bem-vindo, ${data.usuario.nome}! Conta criada com sucesso.`);
-          navigate('/'); // Redirecionar para home
+          navigate('/cliente'); // Redirecionar para página do cliente
         } else {
           throw new Error(data.erro || 'Código inválido');
         }
@@ -217,7 +222,7 @@ export default function CadastroUsuario() {
           localStorage.setItem('auth_token', data.token);
           localStorage.setItem('user_data', JSON.stringify(data.usuario));
           alert(`Bem-vindo, ${data.usuario.nome}! Conta criada com sucesso.`);
-          navigate('/'); // Redirecionar para home
+          navigate('/cliente'); // Redirecionar para página do cliente
         } else {
           throw new Error(data.erro || 'Código inválido');
         }
@@ -242,6 +247,22 @@ export default function CadastroUsuario() {
 
   return (
     <>
+      {/* Header de Debug */}
+      <div style={{
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        backgroundColor: '#28a745', 
+        color: 'white', 
+        padding: '5px 10px', 
+        fontSize: '12px', 
+        zIndex: 9999,
+        textAlign: 'center'
+      }}>
+        📝 PÁGINA DE CADASTRO - URL: {window.location.pathname}
+      </div>
+      
       <Link to="/" className="logo-top-left">
         <img src="/logoNome.jpeg" alt="World Bite Logo" />
       </Link>

@@ -6,6 +6,11 @@ export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const [enderecos, setEnderecos] = useState([]);
 
+  // Definir título da página para debug
+  React.useEffect(() => {
+    document.title = "🏠 Home - World Bite";
+  }, []);
+
   // Refs para as seções
   const carreiraRef = useRef(null);
   const sobreRef = useRef(null);
@@ -19,7 +24,24 @@ export default function Home() {
   };
 
   return (
-    <div className="home-bg">
+    <>
+      {/* Header de Debug */}
+      <div style={{
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        backgroundColor: '#6f42c1', 
+        color: 'white', 
+        padding: '5px 10px', 
+        fontSize: '12px', 
+        zIndex: 9999,
+        textAlign: 'center'
+      }}>
+        🏠 PÁGINA HOME - URL: {window.location.pathname}
+      </div>
+      
+      <div className="home-bg" style={{ marginTop: '30px' }}>
       <EnderecoModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -80,5 +102,6 @@ export default function Home() {
         </div>
       </main>
     </div>
+    </>
   );
 }

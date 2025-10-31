@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste Login - World Bite</title>
+</head>
+<body>
+    <h1>Teste de Login</h1>
+    <button onclick="testarLogin()">Simular Login</button>
+    <button onclick="limparDados()">Limpar Dados</button>
+    <button onclick="abrirCliente()">Abrir Página Cliente</button>
+    
+    <div id="status"></div>
+
+    <script>
+        function testarLogin() {
+            const userData = {
+                id: 1,
+                nome: "João Silva de Teste",
+                email: "joao.teste@email.com",
+                telefone: null,
+                email_verificado: true,
+                telefone_verificado: false
+            };
+            
+            localStorage.setItem('auth_token', 'token_teste_123');
+            localStorage.setItem('user_data', JSON.stringify(userData));
+            
+            document.getElementById('status').innerHTML = 
+                '<p style="color: green;">✅ Dados de login simulados criados!</p>' +
+                '<p>Token: token_teste_123</p>' +
+                '<p>Usuário: ' + userData.nome + '</p>';
+        }
+        
+        function limparDados() {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user_data');
+            document.getElementById('status').innerHTML = 
+                '<p style="color: red;">🗑️ Dados removidos!</p>';
+        }
+        
+        function abrirCliente() {
+            window.open('/cliente', '_blank');
+        }
+        
+        // Mostrar status atual
+        window.onload = function() {
+            const token = localStorage.getItem('auth_token');
+            const userData = localStorage.getItem('user_data');
+            
+            if (token && userData) {
+                const user = JSON.parse(userData);
+                document.getElementById('status').innerHTML = 
+                    '<p style="color: blue;">📋 Dados atuais:</p>' +
+                    '<p>Token: ' + token + '</p>' +
+                    '<p>Usuário: ' + user.nome + '</p>';
+            } else {
+                document.getElementById('status').innerHTML = 
+                    '<p style="color: gray;">❌ Nenhum dado de login encontrado</p>';
+            }
+        }
+    </script>
+</body>
+</html>

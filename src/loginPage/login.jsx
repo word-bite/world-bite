@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./login.css";
 
 export default function LoginPage() {
@@ -11,17 +11,23 @@ export default function LoginPage() {
   const [code, setCode] = useState('');
   const [step, setStep] = useState('login');
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   const API_BASE_URL = 'http://localhost:3000';
 
   useEffect(() => {
+    // Definir título da página para debug
+    document.title = "🔐 Login - World Bite";
+    
     const token = localStorage.getItem('auth_token');
     const userData = localStorage.getItem('user_data');
     
     if (token && userData) {
       setUser(JSON.parse(userData));
+      // Se já está logado, redirecionar para página do cliente
+      navigate('/cliente');
     }
-  }, []);
+  }, [navigate]);
 
   const handleFacebookLogin = async () => {
     try {
@@ -88,6 +94,10 @@ export default function LoginPage() {
           localStorage.setItem('auth_token', data.token);
           localStorage.setItem('user_data', JSON.stringify(data.usuario));
           setUser(data.usuario);
+          
+          // Redirecionar para a página do cliente
+          console.log('✅ Login realizado com sucesso! Redirecionando para página do cliente...');
+          navigate('/cliente');
         } else {
           throw new Error(data.erro || 'Código inválido');
         }
@@ -134,6 +144,10 @@ export default function LoginPage() {
           localStorage.setItem('auth_token', data.token);
           localStorage.setItem('user_data', JSON.stringify(data.usuario));
           setUser(data.usuario);
+          
+          // Redirecionar para a página do cliente
+          console.log('✅ Login realizado com sucesso! Redirecionando para página do cliente...');
+          navigate('/cliente');
         } else {
           throw new Error(data.erro || 'Código inválido');
         }
@@ -203,6 +217,22 @@ export default function LoginPage() {
 
   return (
     <>
+      {/* Header de Debug */}
+      <div style={{
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        backgroundColor: '#007bff', 
+        color: 'white', 
+        padding: '5px 10px', 
+        fontSize: '12px', 
+        zIndex: 9999,
+        textAlign: 'center'
+      }}>
+        🔐 PÁGINA DE LOGIN - URL: {window.location.pathname}
+      </div>
+      
       <Link to="/" className="logo-top-left">
         <img src="/logoNome.jpeg" alt="World Bite Logo" />
       </Link>
