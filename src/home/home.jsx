@@ -25,23 +25,7 @@ export default function Home() {
 
   return (
     <>
-      {/* Header de Debug */}
-      <div style={{
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        backgroundColor: '#6f42c1', 
-        color: 'white', 
-        padding: '5px 10px', 
-        fontSize: '12px', 
-        zIndex: 9999,
-        textAlign: 'center'
-      }}>
-        🏠 PÁGINA HOME - URL: {window.location.pathname}
-      </div>
-      
-      <div className="home-bg" style={{ marginTop: '30px' }}>
+      <div className="home-bg">
       <EnderecoModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}

@@ -247,22 +247,6 @@ export default function CadastroUsuario() {
 
   return (
     <>
-      {/* Header de Debug */}
-      <div style={{
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        backgroundColor: '#28a745', 
-        color: 'white', 
-        padding: '5px 10px', 
-        fontSize: '12px', 
-        zIndex: 9999,
-        textAlign: 'center'
-      }}>
-        📝 PÁGINA DE CADASTRO - URL: {window.location.pathname}
-      </div>
-      
       <Link to="/" className="logo-top-left">
         <img src="/logoNome.jpeg" alt="World Bite Logo" />
       </Link>

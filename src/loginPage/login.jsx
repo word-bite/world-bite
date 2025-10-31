@@ -217,22 +217,6 @@ export default function LoginPage() {
 
   return (
     <>
-      {/* Header de Debug */}
-      <div style={{
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        backgroundColor: '#007bff', 
-        color: 'white', 
-        padding: '5px 10px', 
-        fontSize: '12px', 
-        zIndex: 9999,
-        textAlign: 'center'
-      }}>
-        🔐 PÁGINA DE LOGIN - URL: {window.location.pathname}
-      </div>
-      
       <Link to="/" className="logo-top-left">
         <img src="/logoNome.jpeg" alt="World Bite Logo" />
       </Link>

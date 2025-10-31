@@ -20,30 +20,13 @@ export default function PageCliente() {
       zIndex: 9999
     }}>
       <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: '#28a745',
-        color: 'white',
-        padding: '10px',
-        fontSize: '14px',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        zIndex: 10000
-      }}>
-        ✅ PÁGINA DO CLIENTE FUNCIONANDO - {window.location.href}
-      </div>
-
-      <div style={{
         backgroundColor: 'white',
         padding: '50px',
         borderRadius: '15px',
         boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
         textAlign: 'center',
         maxWidth: '600px',
-        margin: '20px',
-        marginTop: '50px'
+        margin: '20px'
       }}>
         <div style={{ fontSize: '48px', marginBottom: '20px' }}>🍽️</div>
         <h1 style={{ color: '#333', marginBottom: '20px', fontSize: '28px' }}>
