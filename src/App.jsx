@@ -16,6 +16,8 @@ import Pedido from "./pedidos/pedidos";
 import Home from "./Home/home";
 import PageCliente from "./pageCliente/pageCliente";
 import FacebookCallback from "./pages/FacebookCallback";
+import AceitarRecusarPedidos from "./empresas/AceitarRecusarPedidos";
+
 
 export default function App() {
   return (
@@ -27,7 +29,7 @@ export default function App() {
         <Route path="/cadastro-usuario" element={<CadastroUsuario />} />
         <Route path="/login-restaurante" element={<LoginPageRestaurante />} />
         <Route path="/cadastro-restaurante" element={<CadastroRestaurante />} />
-        <Route path="/auth/facebook/callback" element={<FacebookCallback />} />
+        <Route path="/facebook-callback" element={<FacebookCallback />} />
         <Route path="/pedidos" element={<Pedido />} />
         <Route path="/cliente" element={<PageCliente />} />
 
@@ -37,7 +39,10 @@ export default function App() {
           <Route path="/tela-empresa" element={<TelaEmpresa />} />
           <Route path="/painel-restaurante" element={<PainelRestaurante />} />
           <Route path="/cadastro-prato" element={<CadastroPrato />} />
-          
+
+           {/* ROTA PARA GERENCIAR PEDIDOS */}
+          <Route path="/aceitar-recusar-pedidos" element={<AceitarRecusarPedidos />} />
+         
           {/* 🔑 NOVIDADE: Rota para o Gerenciamento de Cardápio (CRUD) */}
           <Route path="/gerenciar-cardapio" element={<GerenciarCardapio />} />
 

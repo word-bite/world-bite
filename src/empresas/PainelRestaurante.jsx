@@ -1,7 +1,9 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "./empresas.css";
 
 export default function PainelRestaurante() {
+  const navigate = useNavigate();
   return (
     <div className="page-bg">
       <div className="page-card">
@@ -10,6 +12,7 @@ export default function PainelRestaurante() {
 
         <div className="painel-grid">
           <button className="painel-btn">📦 Gerenciar Pedidos</button>
+          <button className="painel-btn" onClick={() => navigate('/aceitar-recusar-pedidos')}>↔️ Aceitar ou Recusar Pedidos</button>
           <button className="painel-btn">🍽️ Gerenciar Cardápio</button>
           <button className="painel-btn">🕑 Horários de Funcionamento</button>
           <button className="painel-btn">⭐ Avaliações</button>
