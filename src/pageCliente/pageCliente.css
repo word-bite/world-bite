@@ -58,8 +58,8 @@ body {
 }
 
 .nav-trigger {
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 45px;
   border-radius: 50%;
   border: none;
   background: var(--cliente-green);
@@ -798,6 +798,7 @@ body {
 .bag-body li {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 16px;
 }
 
@@ -816,6 +817,7 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
+  flex-wrap: wrap;
 }
 
 .bag-stepper {
