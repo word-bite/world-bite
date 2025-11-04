@@ -15,6 +15,7 @@ import GerenciarCardapio from "./empresas/GerenciarCardapio";
 import Pedido from "./pedidos/pedidos";
 import Home from "./Home/home";
 import PageCliente from "./pageCliente/pageCliente";
+import GerenciarPerfil from "./pageCliente/GerenciarPerfil";
 import FacebookCallback from "./pages/FacebookCallback";
 import AceitarRecusarPedidos from "./empresas/AceitarRecusarPedidos";
 import PainelChamadas from "./empresas/PainelChamadas";
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/facebook-callback" element={<FacebookCallback />} />
         <Route path="/pedidos" element={<Pedido />} />
         <Route path="/cliente" element={<PageCliente />} />
+        <Route path="/gerenciar-perfil" element={<GerenciarPerfil />} />
         <Route path="/finalizar-pedido" element={<FinalizarPedido />} />
 
 

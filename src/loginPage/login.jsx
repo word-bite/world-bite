@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./login.css";
 
 export default function LoginPage() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [showPhoneForm, setShowPhoneForm] = useState(false);
@@ -88,6 +89,9 @@ export default function LoginPage() {
           localStorage.setItem('auth_token', data.token);
           localStorage.setItem('user_data', JSON.stringify(data.usuario));
           setUser(data.usuario);
+          
+          // Navegar para a página do cliente após login bem-sucedido
+          navigate('/cliente');
         } else {
           throw new Error(data.erro || 'Código inválido');
         }
@@ -134,6 +138,7 @@ export default function LoginPage() {
           localStorage.setItem('auth_token', data.token);
           localStorage.setItem('user_data', JSON.stringify(data.usuario));
           setUser(data.usuario);
+          navigate('/cliente');
         } else {
           throw new Error(data.erro || 'Código inválido');
         }
@@ -161,7 +166,7 @@ export default function LoginPage() {
     return (
       <>
         <Link to="/" className="logo-top-left">
-          <img src="/logompng.jpeg" alt="Logo" />
+          <img src="/logoNome.jpeg" alt="Logo" />
         </Link>
         <div className="bg-img" aria-hidden="true"></div>
         <div className="bg-img-country1" aria-hidden="true"></div>
@@ -204,7 +209,7 @@ export default function LoginPage() {
   return (
     <>
       <Link to="/" className="logo-top-left">
-        <img src="/logompng.jpeg" alt="Logo" />
+        <img src="/logoNome.jpeg" alt="Logo" />
       </Link>
       <div className="bg-img" aria-hidden="true"></div>
       <div className="bg-img-country1" aria-hidden="true"></div>

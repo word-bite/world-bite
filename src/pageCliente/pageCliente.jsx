@@ -312,6 +312,33 @@ export default function PageCliente() {
   );
   const [bagItems, setBagItems] = useState([]);
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  // Carregar dados do usuário logado
+  useEffect(() => {
+    const userData = localStorage.getItem('user_data');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error('Erro ao carregar dados do usuário:', error);
+      }
+    }
+  }, []);
+
+  // Função para obter primeiro nome
+  const getFirstName = (fullName) => {
+    if (!fullName) return 'Cliente';
+    return fullName.split(' ')[0];
+  };
+
+  // Função para gerar iniciais
+  const getInitials = (name) => {
+    if (!name) return 'CL';
+    const names = name.split(' ');
+    if (names.length === 1) return names[0].charAt(0).toUpperCase();
+    return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
+  };
 
   const normalizedTerm = normalize(searchTerm.toLowerCase());
 
@@ -476,7 +503,21 @@ export default function PageCliente() {
             </svg>
             <span>Entregar em Casa</span>
           </button>
-          <div className="header-avatar">VG</div>
+          {user?.avatar_url ? (
+            <img 
+              src={user.avatar_url} 
+              alt="Avatar" 
+              className="header-avatar"
+              style={{ 
+                width: '40px', 
+                height: '40px', 
+                borderRadius: '50%',
+                objectFit: 'cover'
+              }}
+            />
+          ) : (
+            <div className="header-avatar">{user ? getInitials(user.nome) : 'CL'}</div>
+          )}
         </div>
       </header>
 
@@ -484,7 +525,7 @@ export default function PageCliente() {
         <div className="drawer-content">
           <div className="drawer-header">
             <div>
-              <p className="drawer-greeting">Olá, Vitório</p>
+              <p className="drawer-greeting">Olá, {user ? getFirstName(user.nome) : 'Cliente'}</p>
               <p className="drawer-sub">Pronto para escolher o próximo sabor?</p>
             </div>
             <button
@@ -503,7 +544,11 @@ export default function PageCliente() {
             <a href="/pedidos"> <button type="button" className="drawer-link">
               Acompanhar pedido
             </button></a> 
-            <button type="button" className="drawer-link">
+            <button 
+              type="button" 
+              className="drawer-link"
+              onClick={() => navigate('/gerenciar-perfil')}
+            >
               Gerenciar perfil
             </button>
           </nav>

@@ -17,6 +17,7 @@ const emailService = require('./services/emailService');
 const pratoRoutes = require('./routes/pratos');
 const pedidoRoutes = require('./routes/pedidos');
 const usuarioRoutes = require('./routes/usuarioRoutes'); // Rotas PROTEGIDAS de usuário (ex: CRUD Endereços)
+const pagamentoRoutes = require('./routes/pagamentos');
 
 // 2. Configurar a aplicação Express e Nexmo
 const app = express();
@@ -1015,6 +1016,9 @@ app.use('/api/restaurante/prato', pratoRoutes);
 
 // 🔑 ROTAS DOS PEDIDOS (Sistema de Retirada)
 app.use('/api/pedidos', pedidoRoutes);
+
+// 💳 ROTAS DE PAGAMENTOS (Mercado Pago)
+app.use('/api/pagamentos', pagamentoRoutes);
 
 // 🏠 Rota principal
 app.get('/', (req, res) => {
