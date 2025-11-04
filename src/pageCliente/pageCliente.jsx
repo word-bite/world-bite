@@ -741,7 +741,7 @@ export default function PageCliente() {
             <strong>{formatCurrency(total)}</strong>
           </div>
         </div>
-        <button type="button" className="bag-button" disabled={bagItems.length === 0}>
+        <button type="button" className="bag-button" disabled={bagItems.length === 0} onClick={() => navigate('./finalizarPedido/finalizarPedido')}>
           {bagItems.length === 0 ? "Escolha seu prato" : "Escolher forma de pagamento"}
         </button>
       </aside>

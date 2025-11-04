@@ -1,0 +1,29 @@
+.metodo-pagamento-box {
+  margin-top: 25px;
+}
+
+.pagamento-opcoes {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.pagamento-item {
+  width: 150px;
+  padding: 15px;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.pagamento-item img {
+  width: 40px;
+  height: 40px;
+}
+
+.pagamento-item.ativo {
+  border-color: #008000;
+  background: #e6ffe6;
+}

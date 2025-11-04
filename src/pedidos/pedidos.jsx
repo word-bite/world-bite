@@ -2,18 +2,21 @@ import React from "react";
 import "./pedidos.css";
 
 const Pedido = () => {
-  const pedidos = [
+  const pedidosAtuais = [
+    {
+      id: 7301,
+      restaurante: "Restaurante da Vila",
+      status: "Em preparo",
+      itens: ["Prato Feito", "Suco de Laranja"],
+    },
+  ];
+
+  const historico = [
     {
       id: 7250,
       restaurante: "Padaria Real - Pinheiros",
       status: "Pedido concluído",
-      itens: ["2x Micro Coxinha de Frango c/ Catupiry Pipoca"],
-    },
-    {
-      id: 7251,
-      restaurante: "Pizzaria Bella Itália",
-      status: "Pedido concluído",
-      itens: ["1x Pizza Calabresa", "1x Coca-Cola 2L"],
+      itens: ["Micro Coxinha de Queijo Pipoca"],
     },
   ];
 
@@ -23,7 +26,7 @@ const Pedido = () => {
       <header className="header">
         {/* Logo */}
         <div className="header-logo">
-          <img src="/logoNome.jpeg" alt="World Bite Logo" className="logo-img" />
+          <img src="/logoNome.jpeg" alt="World Bite Logo" className="home-logo" />
         </div>
 
         {/* Barra de busca */}
@@ -43,30 +46,65 @@ const Pedido = () => {
         </nav>
       </header>
 
-      {/* Histórico de pedidos */}
-      <main className="historico-container">
-        <h2>Meus pedidos</h2>
-        <h3>Histórico</h3>
+      {/* Conteúdo principal */}
+      <main className="pedidos-page">
+        <h2>Meus Pedidos</h2>
 
-        {pedidos.map((pedido) => (
-          <div key={pedido.id} className="pedido-card">
-            <div className="pedido-info">
-              <h4>{pedido.restaurante}</h4>
-              <p>
-                {pedido.status} • Nº {pedido.id}
-              </p>
-              <ul>
-                {pedido.itens.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="pedido-acoes">
-              <button className="btn-ajuda">Ajuda</button>
-              <button className="btn-sacola">Adicionar à sacola</button>
-            </div>
-          </div>
-        ))}
+        {/* Pedidos atuais */}
+        <section className="pedidos-atuais">
+          <h3>Pedidos Atuais</h3>
+          {pedidosAtuais.length === 0 ? (
+            <p>Você não tem pedidos em andamento.</p>
+          ) : (
+            pedidosAtuais.map((pedido) => (
+              <div key={pedido.id} className="pedido-card">
+                <div className="pedido-info">
+                  <h4>{pedido.restaurante}</h4>
+                  <p>
+                    {pedido.status} • Nº {pedido.id}
+                  </p>
+                  <ul>
+                    {pedido.itens.map((item, index) => (
+                      <li key={index}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="pedido-acoes">
+                  <button className="btn-ajuda">Ajuda</button>
+                  <button className="btn-sacola">Adicionar à sacola</button>
+                </div>
+              </div>
+            ))
+          )}
+        </section>
+
+        {/* Histórico de pedidos */}
+        <section className="historico-container">
+          <h3>Histórico</h3>
+          {historico.length === 0 ? (
+            <p>Você ainda não fez pedidos.</p>
+          ) : (
+            historico.map((pedido) => (
+              <div key={pedido.id} className="pedido-card">
+                <div className="pedido-info">
+                  <h4>{pedido.restaurante}</h4>
+                  <p>
+                    {pedido.status} • Nº {pedido.id}
+                  </p>
+                  <ul>
+                    {pedido.itens.map((item, index) => (
+                      <li key={index}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="pedido-acoes">
+                  <button className="btn-ajuda">Ajuda</button>
+                  <button className="btn-sacola">Adicionar à sacola</button>
+                </div>
+              </div>
+            ))
+          )}
+        </section>
       </main>
     </div>
   );
