@@ -925,6 +925,20 @@ body {
     background: linear-gradient(135deg, var(--cliente-brown), #24160b);
     color: var(--cliente-cream);
     box-shadow: 0 16px 36px -20px rgba(36, 22, 11, 0.9);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .bag-mobile button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px -20px rgba(36, 22, 11, 0.9);
+  }
+
+  .bag-mobile button:disabled {
+    background: #ccc;
+    color: #888;
+    cursor: not-allowed;
+    box-shadow: none;
   }
 
   .bag-mobile-icon {

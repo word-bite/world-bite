@@ -11,9 +11,10 @@ export default function PainelRestaurante() {
         <p className="page-subtitle">Gerencie seu negócio no iFood Empresas</p>
 
         <div className="painel-grid">
-          <button className="painel-btn">📦 Gerenciar Pedidos</button>
-          <button className="painel-btn" onClick={() => navigate('/aceitar-recusar-pedidos')}>↔️ Aceitar ou Recusar Pedidos</button>
-          <button className="painel-btn">🍽️ Gerenciar Cardápio</button>
+          <button className="painel-btn" onClick={() => navigate('/aceitar-recusar-pedidos')}>📦 Gerenciar Pedidos</button>
+          <button className="painel-btn" onClick={() => navigate('/painel-chamadas')}>🔔 Painel de Chamadas</button>
+          <button className="painel-btn" onClick={() => navigate('/gerenciar-cardapio')}>🍽️ Gerenciar Cardápio</button>
+          <button className="painel-btn" onClick={() => navigate('/cadastro-prato')}>➕ Cadastrar Prato</button>
           <button className="painel-btn">🕑 Horários de Funcionamento</button>
           <button className="painel-btn">⭐ Avaliações</button>
           <button className="painel-btn">💳 Pagamentos</button>
