@@ -12,8 +12,9 @@ const prisma = require('./config/database.js');
 // Importar o serviço de email
 const emailService = require('./services/emailService');
 
-// 🔑 IMPORTAÇÃO DAS ROTAS DE PRATOS
+// 🔑 IMPORTAÇÃO DAS ROTAS DE PRATOS E PEDIDOS
 const pratoRoutes = require('./routes/pratos');
+const pedidoRoutes = require('./routes/pedidos');
 
 // 2. Configurar a aplicação Express e Nexmo
 const app = express();
@@ -979,7 +980,10 @@ app.get('/api/test-email', async (req, res) => {
 // =======================================================
 
 // 🔑 INTEGRAÇÃO DO CRUD DE PRATOS
-app.use('/api/restaurante/prato', pratoRoutes); 
+app.use('/api/restaurante/prato', pratoRoutes);
+
+// 🔑 ROTAS DOS PEDIDOS (Sistema de Retirada)
+app.use('/api/pedidos', pedidoRoutes);
 
 // 🏠 Rota principal
 app.get('/', (req, res) => {

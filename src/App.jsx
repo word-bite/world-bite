@@ -17,6 +17,7 @@ import Home from "./Home/home";
 import PageCliente from "./pageCliente/pageCliente";
 import FacebookCallback from "./pages/FacebookCallback";
 import AceitarRecusarPedidos from "./empresas/AceitarRecusarPedidos";
+import PainelChamadas from "./empresas/PainelChamadas";
 import FinalizarPedido from "./finalizarPedido/finalizarPedido";
 
 
@@ -33,7 +34,7 @@ export default function App() {
         <Route path="/facebook-callback" element={<FacebookCallback />} />
         <Route path="/pedidos" element={<Pedido />} />
         <Route path="/cliente" element={<PageCliente />} />
-        <Route path="/finalizarPedido" element={<FinalizarPedido />} />
+        <Route path="/finalizar-pedido" element={<FinalizarPedido />} />
 
         {/* ROTAS PROTEGIDAS PELA SESSÃO DO RESTAURANTE */}
         <Route element={<PrivateRoute />}>
@@ -44,6 +45,9 @@ export default function App() {
 
            {/* ROTA PARA GERENCIAR PEDIDOS */}
           <Route path="/aceitar-recusar-pedidos" element={<AceitarRecusarPedidos />} />
+          
+          {/* 🔑 NOVIDADE: Painel de Chamadas de Retirada */}
+          <Route path="/painel-chamadas" element={<PainelChamadas />} />
          
           {/* 🔑 NOVIDADE: Rota para o Gerenciamento de Cardápio (CRUD) */}
           <Route path="/gerenciar-cardapio" element={<GerenciarCardapio />} />

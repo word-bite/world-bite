@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "./login.css";
 
 export default function LoginPage() {
@@ -11,23 +11,17 @@ export default function LoginPage() {
   const [code, setCode] = useState('');
   const [step, setStep] = useState('login');
   const [user, setUser] = useState(null);
-  const navigate = useNavigate();
 
   const API_BASE_URL = 'http://localhost:3000';
 
   useEffect(() => {
-    // Definir título da página para debug
-    document.title = "🔐 Login - World Bite";
-    
     const token = localStorage.getItem('auth_token');
     const userData = localStorage.getItem('user_data');
     
     if (token && userData) {
       setUser(JSON.parse(userData));
-      // Se já está logado, redirecionar para página do cliente
-      navigate('/cliente');
     }
-  }, [navigate]);
+  }, []);
 
   const handleFacebookLogin = async () => {
     try {
@@ -73,7 +67,7 @@ export default function LoginPage() {
         const data = await response.json();
         
         if (data.sucesso) {
-          alert(`Código de verificação enviado para ${email}! Verifique seu email.`);
+          alert(`Código enviado para ${email}! (Código para teste: ${data.codigoParaTeste})`);
           setStep('verify');
         } else {
           throw new Error(data.erro || 'Erro ao enviar código');
@@ -94,10 +88,6 @@ export default function LoginPage() {
           localStorage.setItem('auth_token', data.token);
           localStorage.setItem('user_data', JSON.stringify(data.usuario));
           setUser(data.usuario);
-          
-          // Redirecionar para a página do cliente
-          console.log('✅ Login realizado com sucesso! Redirecionando para página do cliente...');
-          navigate('/cliente');
         } else {
           throw new Error(data.erro || 'Código inválido');
         }
@@ -123,7 +113,7 @@ export default function LoginPage() {
         const data = await response.json();
         
         if (data.sucesso) {
-          alert(`Código de verificação enviado para ${phone}! Verifique suas mensagens.`);
+          alert(`Código enviado para ${phone}! (Código para teste: ${data.codigoParaTeste})`);
           setStep('verify');
         } else {
           throw new Error(data.erro || 'Erro ao enviar código');
@@ -144,10 +134,6 @@ export default function LoginPage() {
           localStorage.setItem('auth_token', data.token);
           localStorage.setItem('user_data', JSON.stringify(data.usuario));
           setUser(data.usuario);
-          
-          // Redirecionar para a página do cliente
-          console.log('✅ Login realizado com sucesso! Redirecionando para página do cliente...');
-          navigate('/cliente');
         } else {
           throw new Error(data.erro || 'Código inválido');
         }
@@ -175,7 +161,7 @@ export default function LoginPage() {
     return (
       <>
         <Link to="/" className="logo-top-left">
-          <img src="/logoNome.jpeg" alt="World Bite Logo" />
+          <img src="/logompng.jpeg" alt="Logo" />
         </Link>
         <div className="bg-img" aria-hidden="true"></div>
         <div className="bg-img-country1" aria-hidden="true"></div>
@@ -218,7 +204,7 @@ export default function LoginPage() {
   return (
     <>
       <Link to="/" className="logo-top-left">
-        <img src="/logoNome.jpeg" alt="World Bite Logo" />
+        <img src="/logompng.jpeg" alt="Logo" />
       </Link>
       <div className="bg-img" aria-hidden="true"></div>
       <div className="bg-img-country1" aria-hidden="true"></div>
@@ -388,15 +374,9 @@ export default function LoginPage() {
             <a href="#">Termos de Uso</a> e a{" "}
             <a href="#">Política de Privacidade</a>.
           </p>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px', width: '200px' }}>
-            <Link to="/cadastro-usuario" className="login-btn small" style={{ textAlign: "center", backgroundColor: "#28a745" }}>
-              Criar nova conta
-            </Link>
-            <Link to="/cadastro-restaurante" className="login-btn small" style={{ textAlign: "center" }}>
-              Cadastrar Restaurante
-            </Link>
-          </div>
+          <Link to="/cadastro-restaurante" className="login-btn small" style={{marginTop: 16, textAlign: "center"}}>
+            Cadastrar Restaurante
+          </Link>
         </div>
       </div>
     </>

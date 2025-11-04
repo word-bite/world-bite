@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./TipoEntrega.css";
 
 export default function TipoEntrega({ onChange }) {
-  const [selecionado, setSelecionado] = useState("moto");
+  const [selecionado, setSelecionado] = useState("entrega");
 
   const alterar = (tipo) => {
     setSelecionado(tipo);
@@ -16,25 +16,25 @@ export default function TipoEntrega({ onChange }) {
       <div className="opcoes-entrega">
 
         <div
-          className={`opcao-item ${selecionado === "moto" ? "ativo" : ""}`}
-          onClick={() => alterar("moto")}
+          className={`opcao-item ${selecionado === "entrega" ? "ativo" : ""}`}
+          onClick={() => alterar("entrega")}
         >
           <img
             src="https://cdn-icons-png.flaticon.com/512/741/741407.png"
-            alt="Moto"
+            alt="Entrega"
           />
-          <span>Moto</span>
+          <span>Entrega</span>
         </div>
 
         <div
-          className={`opcao-item ${selecionado === "bike" ? "ativo" : ""}`}
-          onClick={() => alterar("bike")}
+          className={`opcao-item ${selecionado === "retirada" ? "ativo" : ""}`}
+          onClick={() => alterar("retirada")}
         >
           <img
-            src="https://cdn-icons-png.flaticon.com/512/2972/2972185.png"
-            alt="Bicicleta"
+            src="https://cdn-icons-png.flaticon.com/512/3514/3514242.png"
+            alt="Retirar na loja"
           />
-          <span>Bicicleta</span>
+          <span>Retirar na loja</span>
         </div>
 
       </div>

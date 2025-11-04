@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./pageCliente.css";
 
 const categories = [
@@ -303,6 +304,7 @@ const formatCurrency = (value) =>
 const normalize = (value) => value.normalize("NFD").replace(/[^\w\s]/g, "") || "";
 
 export default function PageCliente() {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState(categories[0].id);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState(
@@ -741,13 +743,13 @@ export default function PageCliente() {
             <strong>{formatCurrency(total)}</strong>
           </div>
         </div>
-        <button type="button" className="bag-button" disabled={bagItems.length === 0} onClick={() => navigate('./finalizarPedido/finalizarPedido')}>
+        <button type="button" className="bag-button" disabled={bagItems.length === 0} onClick={() => navigate('/finalizar-pedido')}>
           {bagItems.length === 0 ? "Escolha seu prato" : "Escolher forma de pagamento"}
         </button>
       </aside>
 
       <div className="bag-mobile">
-        <button type="button">
+        <button type="button" onClick={() => navigate('/finalizar-pedido')} disabled={bagItems.length === 0}>
           <div>
             <strong>Sacola</strong>
             <span>
