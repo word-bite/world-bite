@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../config/api";
 import "./empresas.css"; // Assumindo que este CSS existe
 
 // As categorias devem ser as mesmas definidas no schema.prisma
@@ -31,7 +32,7 @@ export default function CadastroPrato() {
     setError(null);
     try {
       const headers = getCnpjHeader();
-      const response = await fetch('http://localhost:3000/api/restaurante/prato', {
+      const response = await fetch(`${API_BASE_URL}/api/restaurante/prato', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -80,7 +81,7 @@ export default function CadastroPrato() {
         urlImagem,
       };
 
-      const response = await fetch('http://localhost:3000/api/restaurante/prato', {
+      const response = await fetch(`${API_BASE_URL}/api/restaurante/prato', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

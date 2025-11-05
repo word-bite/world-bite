@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../config/api";
 import AutocompleteEndereco from "../AutocompleteEndereco";
 import "./GerenciarPerfil.css";
 
@@ -59,7 +60,7 @@ export default function GerenciarPerfil() {
       const token = localStorage.getItem('auth_token');
       if (!token) return;
       
-      const response = await fetch('http://localhost:3000/api/usuarios/enderecos', {
+      const response = await fetch(`${API_BASE_URL}/api/usuarios/enderecos`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -93,7 +94,7 @@ export default function GerenciarPerfil() {
   const handleSave = async () => {
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch(`http://localhost:3000/api/usuarios/${user.id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/usuarios/${user.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -200,8 +201,8 @@ export default function GerenciarPerfil() {
       }
       
       const url = enderecoEditando 
-        ? `http://localhost:3000/api/usuarios/enderecos/${enderecoEditando.id}`
-        : 'http://localhost:3000/api/usuarios/enderecos';
+        ? `${API_BASE_URL}/api/usuarios/enderecos/${enderecoEditando.id}`
+        : `${API_BASE_URL}/api/usuarios/enderecos`;
       
       const method = enderecoEditando ? 'PUT' : 'POST';
 
@@ -267,7 +268,7 @@ export default function GerenciarPerfil() {
 
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch(`http://localhost:3000/api/usuarios/enderecos/${enderecoId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/usuarios/enderecos/${enderecoId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

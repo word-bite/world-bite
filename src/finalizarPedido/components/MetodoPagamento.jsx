@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../../config/api";
 import "./MetodoPagamento.css";
 
 export default function MetodoPagamento({ onChange, onPaymentDataChange, valorTotal }) {
@@ -15,7 +16,6 @@ export default function MetodoPagamento({ onChange, onPaymentDataChange, valorTo
   const [processando, setProcessando] = useState(false);
   const [erro, setErro] = useState("");
 
-  const API_BASE_URL = 'http://localhost:3000';
   const MP_PUBLIC_KEY = 'APP_USR-4e46566c-d6bf-4efb-a1e1-f154da29dc96'; // Chave pública de teste do Mercado Pago
 
   // Carregar SDK do Mercado Pago

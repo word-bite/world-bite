@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../../config/api";
 import AutocompleteEndereco from "../../AutocompleteEndereco";
 import "./EnderecoEntrega.css";
 
@@ -39,7 +40,7 @@ export default function EnderecoEntrega({ onEnderecoChange, onEnderecoSelecionad
         return;
       }
 
-      const response = await fetch('http://localhost:3000/api/usuarios/enderecos', {
+      const response = await fetch(`${API_BASE_URL}/api/usuarios/enderecos`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../config/api";
 import "./empresas.css"; 
 // Você pode precisar importar estilos de modal se não estiverem no empresas.css
 // import './Modal.css'; 
 
 // As categorias devem ser as mesmas definidas no schema.prisma
 const CATEGORIAS = ["PRINCIPAL", "SOBREMESA", "ENTRADA", "BEBIDA", "PROMOCAO"];
-
-const API_BASE_URL = 'http://localhost:3000/api/restaurante/prato';
 
 // 🔑 Função utilitária para obter o cabeçalho de autenticação
 const getCnpjHeader = () => {

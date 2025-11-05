@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../config/api";
 import "../loginPage/login.css"; // Reutilizar estilos do login
 
 export default function CadastroUsuario() {
@@ -13,7 +14,10 @@ export default function CadastroUsuario() {
   const [step, setStep] = useState('signup'); // 'signup' -> 'verify' -> 'complete'
   const navigate = useNavigate();
 
-  const API_BASE_URL = 'http://localhost:3000';
+  // Definir título da página para debug
+  React.useEffect(() => {
+    document.title = "📝 Cadastro - World Bite";
+  }, []);
 
   const handleFacebookSignup = async () => {
     try {
@@ -125,7 +129,7 @@ export default function CadastroUsuario() {
           localStorage.setItem('auth_token', data.token);
           localStorage.setItem('user_data', JSON.stringify(data.usuario));
           alert(`Bem-vindo, ${data.usuario.nome}! Conta criada com sucesso.`);
-          navigate('/'); // Redirecionar para home
+          navigate('/cliente'); // Redirecionar para página do cliente
         } else {
           throw new Error(data.erro || 'Código inválido');
         }
@@ -217,7 +221,7 @@ export default function CadastroUsuario() {
           localStorage.setItem('auth_token', data.token);
           localStorage.setItem('user_data', JSON.stringify(data.usuario));
           alert(`Bem-vindo, ${data.usuario.nome}! Conta criada com sucesso.`);
-          navigate('/'); // Redirecionar para home
+          navigate('/cliente'); // Redirecionar para página do cliente
         } else {
           throw new Error(data.erro || 'Código inválido');
         }

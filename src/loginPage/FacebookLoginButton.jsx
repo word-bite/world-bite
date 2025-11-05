@@ -2,12 +2,13 @@
 // Componente integrado para usar na página de login existente
 
 import React, { useState } from 'react';
+import { API_BASE_URL } from "../config/api";
 
 const FacebookLoginButton = ({ onLoginSuccess, onLoginError }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const API_BASE_URL = 'http://localhost:3000';
+  const API_BASE_URL = `${API_BASE_URL}';
 
   const handleFacebookLogin = async () => {
     try {

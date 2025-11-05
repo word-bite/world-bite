@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../config/api";
 import "./login.css";
 
 export default function LoginPage() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [showPhoneForm, setShowPhoneForm] = useState(false);
@@ -11,8 +13,6 @@ export default function LoginPage() {
   const [code, setCode] = useState('');
   const [step, setStep] = useState('login');
   const [user, setUser] = useState(null);
-
-  const API_BASE_URL = 'http://localhost:3000';
 
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
@@ -67,7 +67,7 @@ export default function LoginPage() {
         const data = await response.json();
         
         if (data.sucesso) {
-          alert(`Código de verificação enviado para ${email}! Verifique seu email.`);
+          alert(`Código enviado para ${email}! (Código para teste: ${data.codigoParaTeste})`);
           setStep('verify');
         } else {
           throw new Error(data.erro || 'Erro ao enviar código');
@@ -88,6 +88,9 @@ export default function LoginPage() {
           localStorage.setItem('auth_token', data.token);
           localStorage.setItem('user_data', JSON.stringify(data.usuario));
           setUser(data.usuario);
+          
+          // Navegar para a página do cliente após login bem-sucedido
+          navigate('/cliente');
         } else {
           throw new Error(data.erro || 'Código inválido');
         }
@@ -113,7 +116,7 @@ export default function LoginPage() {
         const data = await response.json();
         
         if (data.sucesso) {
-          alert(`Código de verificação enviado para ${phone}! Verifique suas mensagens.`);
+          alert(`Código enviado para ${phone}! (Código para teste: ${data.codigoParaTeste})`);
           setStep('verify');
         } else {
           throw new Error(data.erro || 'Erro ao enviar código');
@@ -134,6 +137,7 @@ export default function LoginPage() {
           localStorage.setItem('auth_token', data.token);
           localStorage.setItem('user_data', JSON.stringify(data.usuario));
           setUser(data.usuario);
+          navigate('/cliente');
         } else {
           throw new Error(data.erro || 'Código inválido');
         }
@@ -161,7 +165,7 @@ export default function LoginPage() {
     return (
       <>
         <Link to="/" className="logo-top-left">
-          <img src="/logoNome.jpeg" alt="World Bite Logo" />
+          <img src="/logoNome.jpeg" alt="Logo" />
         </Link>
         <div className="bg-img" aria-hidden="true"></div>
         <div className="bg-img-country1" aria-hidden="true"></div>
@@ -204,7 +208,7 @@ export default function LoginPage() {
   return (
     <>
       <Link to="/" className="logo-top-left">
-        <img src="/logoNome.jpeg" alt="World Bite Logo" />
+        <img src="/logoNome.jpeg" alt="Logo" />
       </Link>
       <div className="bg-img" aria-hidden="true"></div>
       <div className="bg-img-country1" aria-hidden="true"></div>
@@ -374,15 +378,9 @@ export default function LoginPage() {
             <a href="#">Termos de Uso</a> e a{" "}
             <a href="#">Política de Privacidade</a>.
           </p>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px', width: '200px' }}>
-            <Link to="/cadastro-usuario" className="login-btn small" style={{ textAlign: "center", backgroundColor: "#28a745" }}>
-              Criar nova conta
-            </Link>
-            <Link to="/cadastro-restaurante" className="login-btn small" style={{ textAlign: "center" }}>
-              Cadastrar Restaurante
-            </Link>
-          </div>
+          <Link to="/cadastro-restaurante" className="login-btn small" style={{marginTop: 16, textAlign: "center"}}>
+            Cadastrar Restaurante
+          </Link>
         </div>
       </div>
     </>

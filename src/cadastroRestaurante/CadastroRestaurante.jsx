@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { API_BASE_URL } from "../config/api";
 import { Link } from "react-router-dom";
 import "./CadastroRestaurante.css";
 import "../loginPage/login.css"; // Para os estilos da logo
@@ -28,7 +29,7 @@ export default function CadastroRestaurante() {
     const cnpjLimpo = formData.cnpj.replace(/\D/g, '');
 
     try {
-      const response = await fetch("http://localhost:3000/restaurantes", {
+      const response = await fetch(`${API_BASE_URL}/restaurantes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
