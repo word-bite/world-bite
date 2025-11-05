@@ -188,6 +188,49 @@ curl -X POST http://localhost:3000/api/auth/facebook/token \
 }'
 ```
 
+## 💳 Testando Pagamentos (Mercado Pago)
+
+### Cartões de Teste
+
+Use estes cartões para testar diferentes cenários de pagamento:
+
+| Bandeira | Número do Cartão | Código de Segurança | Validade |
+|----------|------------------|---------------------|----------|
+| **Mastercard** | 5031 4332 1540 6351 | 123 | 11/30 |
+| **Visa** | 4235 6477 2802 5682 | 123 | 11/30 |
+| **American Express** | 3753 651535 56885 | 1234 | 11/30 |
+| **Elo Débito** | 5067 7667 8388 8311 | 123 | 11/30 |
+
+### Status de Pagamento
+
+Para testar diferentes resultados de pagamento, insira o **status desejado no nome do titular do cartão**:
+
+| Nome do Titular | Status | Resultado | CPF para Teste |
+|----------------|--------|-----------|----------------|
+| **APRO** | Aprovado | ✅ Pagamento aprovado com sucesso | 12345678909 |
+| **OTHE** | Recusado | ❌ Recusado por erro geral | 12345678909 |
+
+### Exemplo de Teste Completo
+
+```
+💳 Dados do Cartão:
+  - Número: 5031 4332 1540 6351
+  - Titular: APRO
+  - Validade: 11/30
+  - CVV: 123
+  - CPF: 123.456.789-09
+  
+✅ Resultado Esperado: Pagamento Aprovado
+```
+
+### 📝 Observações Importantes
+
+- Os cartões de teste **não realizam cobranças reais**
+- Use sempre o **CPF 12345678909** para testes
+- O nome do titular define o status do pagamento
+- Testes disponíveis apenas em **ambiente sandbox**
+- Para produção, configure as credenciais reais do Mercado Pago no `.env`
+
 ## 🔑 Como funciona o Login com Facebook (fluxo OAuth 2.0)
 
 ### **Frontend → Facebook**
