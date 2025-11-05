@@ -38,6 +38,16 @@ app.use(express.json());
 // ⚠️ IMPORTANTE: usuarioRoutes (protegidas) são registradas no FINAL do arquivo
 // para que as rotas públicas (/api/usuarios/cadastro, /codigo-email, etc) sejam processadas primeiro
 
+// Rota de health check para testar se o backend está funcionando
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        status: 'OK', 
+        message: 'Backend World Bite funcionando!',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
+
 // 4. Testar a conexão com o Prisma (opcional, mas útil)
 (async () => {
     try {
