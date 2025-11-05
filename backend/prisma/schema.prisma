@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ma/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,105 +11,80 @@ model Restaurante {
   id                  Int       @id @default(autoincrement())
   nome                String    @db.VarChar(100)
   cnpj                String    @unique @db.VarChar(14)
-  descricao           String?   @db.Text
-  endereco            String    @db.Text
+  descricao           String?
+  endereco            String
   telefone_contato    String?   @db.VarChar(20)
   email_contato       String?   @db.VarChar(255)
   nota_media          Decimal?  @default(0.00) @db.Decimal(3, 2)
   tempo_medio_entrega Int?
   pais_id             String    @db.VarChar(255)
   ativo               Boolean?  @default(true)
-  horario_abertura    DateTime? @db.Time
-  horario_fechamento  DateTime? @db.Time
-  data_criacao        DateTime  @default(now()) @db.Timestamptz
-  data_atualizacao    DateTime  @default(now()) @db.Timestamptz
-
-
-  pratos  Prato[]
-  pedidos Pedido[] // O Prisma agora encontrará o "model Pedido" abaixo
+  horario_abertura    DateTime? @db.Time(6)
+  horario_fechamento  DateTime? @db.Time(6)
+  data_criacao        DateTime  @default(now()) @db.Timestamptz(6)
+  data_atualizacao    DateTime  @default(now()) @db.Timestamptz(6)
+  pedidos             Pedido[]
+  pratos              Prato[]
 
   @@map("Restaurantes")
 }
 
-
-// 1. Defina o ENUM
-enum CategoriaPrato {
-  PRINCIPAL
-  SOBREMESA
-  ENTRADA
-  BEBIDA
-  PROMOCAO
-}
-
-// 2. O Model Prato
 model Prato {
   id              Int            @id @default(autoincrement())
   nome            String         @db.VarChar(100)
   descricao       String
   preco           Decimal        @db.Decimal(10, 2)
-  categoria       CategoriaPrato // Usa o enum definido
+  categoria       CategoriaPrato
   disponivel      Boolean        @default(true)
-  urlImagem       String?        @db.VarChar(255) @map("url_imagem")
-  dataCriacao     DateTime       @default(now()) @map("data_criacao") @db.Timestamptz
-  dataAtualizacao DateTime       @updatedAt @map("data_atualizacao") @db.Timestamptz
-
-  // Relação com o Restaurante
-  restaurante     Restaurante @relation(fields: [restauranteId], references: [id])
-  restauranteId   Int         @map("restaurante_id")
+  urlImagem       String?        @map("url_imagem") @db.VarChar(255)
+  dataCriacao     DateTime       @default(now()) @map("data_criacao") @db.Timestamptz(6)
+  dataAtualizacao DateTime       @updatedAt @map("data_atualizacao") @db.Timestamptz(6)
+  restauranteId   Int            @map("restaurante_id")
+  restaurante     Restaurante    @relation(fields: [restauranteId], references: [id])
 
   @@map("pratos")
 }
 
-// Modelo Usuario para autenticação
 model Usuario {
-  id                   Int       @id @default(autoincrement())
-  nome                 String    @db.VarChar(100)
-  email                String?   @unique @db.VarChar(255)
-  telefone             String?   @unique @db.VarChar(20)
-  facebook_id          String?   @unique @db.VarChar(255)
-  avatar_url           String?   @db.VarChar(500)
-  provider             String?   @default("local") @db.VarChar(50) // 'local', 'facebook'
-  codigo_verificacao   String?   @db.VarChar(10)
-  codigo_expira_em     DateTime? @db.Timestamptz
-  email_verificado     Boolean   @default(false)
-  telefone_verificado  Boolean   @default(false)
-  ativo                Boolean   @default(true)
-  data_criacao         DateTime  @default(now()) @db.Timestamptz
-  data_atualizacao     DateTime  @updatedAt @db.Timestamptz
-  ultimo_login         DateTime? @db.Timestamptz
-
-  // Relação com pedidos
-  pedidos   Pedido[] // O Prisma agora encontrará o "model Pedido" abaixo
-
-  // Relação com endereços (NOVA)
-  enderecos Endereco[]
+  id                  Int        @id @default(autoincrement())
+  nome                String     @db.VarChar(100)
+  email               String?    @unique @db.VarChar(255)
+  telefone            String?    @unique @db.VarChar(20)
+  facebook_id         String?    @unique @db.VarChar(255)
+  avatar_url          String?    @db.VarChar(500)
+  provider            String?    @default("local") @db.VarChar(50)
+  codigo_verificacao  String?    @db.VarChar(10)
+  codigo_expira_em    DateTime?  @db.Timestamptz(6)
+  email_verificado    Boolean    @default(false)
+  telefone_verificado Boolean    @default(false)
+  ativo               Boolean    @default(true)
+  data_criacao        DateTime   @default(now()) @db.Timestamptz(6)
+  data_atualizacao    DateTime   @updatedAt @db.Timestamptz(6)
+  ultimo_login        DateTime?  @db.Timestamptz(6)
+  enderecos           Endereco[]
+  pedidos             Pedido[]
 
   @@map("usuarios")
 }
 
-// Modelo Pedido para o sistema de retirada (ORIGINAL)
-// (Este modelo precisa estar ANTES dos modelos que o referenciam, ou o Prisma precisa encontrá-lo)
 model Pedido {
-  id             Int      @id @default(autoincrement())
-  clienteId      Int      @map("cliente_id")
-  restauranteId  Int      @map("restaurante_id")
-  tipoEntrega    String   @map("tipo_entrega") // 'retirada' ou 'entrega'
-  codigoRetirada String?  @map("codigo_retirada") // exemplo: "6363"
-  status         String   @default("pendente") // 'pendente', 'aceito', 'pronto', 'retirado', 'entregue'
-  itens          Json     // Array de itens do pedido em formato JSON
-  valorTotal     Decimal  @map("valor_total") @db.Decimal(10, 2)
-  observacoes    String?  @db.Text
-  criadoEm       DateTime @default(now()) @map("criado_em") @db.Timestamptz
-  atualizadoEm   DateTime @updatedAt @map("atualizado_em") @db.Timestamptz
-
-  // Relações
-  cliente     Usuario     @relation(fields: [clienteId], references: [id])
-  restaurante Restaurante @relation(fields: [restauranteId], references: [id])
+  id             Int         @id @default(autoincrement())
+  clienteId      Int         @map("cliente_id")
+  restauranteId  Int         @map("restaurante_id")
+  tipoEntrega    String      @map("tipo_entrega")
+  codigoRetirada String?     @map("codigo_retirada")
+  status         String      @default("pendente")
+  itens          Json
+  valorTotal     Decimal     @map("valor_total") @db.Decimal(10, 2)
+  observacoes    String?
+  criadoEm       DateTime    @default(now()) @map("criado_em") @db.Timestamptz(6)
+  atualizadoEm   DateTime    @updatedAt @map("atualizado_em") @db.Timestamptz(6)
+  cliente        Usuario     @relation(fields: [clienteId], references: [id])
+  restaurante    Restaurante @relation(fields: [restauranteId], references: [id])
 
   @@map("pedidos")
 }
 
-// NOVO MODELO DE ENDEREÇO (ADICIONADO AQUI)
 model Endereco {
   id          Int      @id @default(autoincrement())
   logradouro  String   @db.VarChar(255)
@@ -120,14 +92,20 @@ model Endereco {
   complemento String?  @db.VarChar(100)
   bairro      String   @db.VarChar(100)
   cidade      String   @db.VarChar(100)
-  estado      String   @db.VarChar(2) // Sigla do estado (ex: 'SP')
-  cep         String   @db.VarChar(9) // Formato '12345-678'
-  apelido     String?  @db.VarChar(50) // e.g., "Casa", "Trabalho"
+  estado      String   @db.VarChar(2)
+  cep         String   @db.VarChar(9)
+  apelido     String?  @db.VarChar(50)
   dataCriacao DateTime @default(now()) @map("data_criacao")
-
-  // Chave estrangeira para o Usuario
-  usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  usuarioId Int     @map("usuario_id")
+  usuarioId   Int      @map("usuario_id")
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@map("enderecos")
+}
+
+enum CategoriaPrato {
+  PRINCIPAL
+  SOBREMESA
+  ENTRADA
+  BEBIDA
+  PROMOCAO
 }

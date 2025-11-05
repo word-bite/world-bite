@@ -1,19 +1,200 @@
 .endereco-form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  width: 350px;
-  margin: 20px auto;
+  gap: 15px;
+  width: 100%;
   padding: 20px;
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
+.endereco-form h2 {
+  margin: 0 0 15px 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.endereco-form label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+  display: block;
+}
+
 .endereco-form input {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-row {
+  display: flex;
+  gap: 10px;
+}
+
+.form-row > div {
+  flex: 1;
+}
+
+/* Endereços Salvos */
+.enderecos-salvos {
+  margin-bottom: 20px;
+}
+
+.enderecos-lista-select {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.endereco-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 15px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #f9f9f9;
+}
+
+.endereco-card:hover {
+  border-color: #e21b1b;
+  background: #fff;
+}
+
+.endereco-card.selecionado {
+  border-color: #e21b1b;
+  background: #fff5f5;
+}
+
+.endereco-radio {
+  padding-top: 2px;
+}
+
+.endereco-radio input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.endereco-dados {
+  flex: 1;
+}
+
+.endereco-dados strong {
+  color: #e21b1b;
+  font-size: 14px;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.endereco-dados p {
+  margin: 3px 0;
+  color: #333;
+  font-size: 14px;
+}
+
+.endereco-detalhes-small {
+  color: #666 !important;
+  font-size: 13px !important;
+}
+
+.btn-novo-endereco {
+  background: #fff;
+  color: #e21b1b;
+  border: 2px solid #e21b1b;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+  margin-top: 10px;
+}
+
+.btn-novo-endereco:hover {
+  background: #e21b1b;
+  color: #fff;
+}
+
+/* Formulário Novo Endereço */
+.novo-endereco-form {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+/* Seção de busca por CEP */
+.cep-busca-section {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 2px solid #e0e0e0;
+}
+
+.cep-busca-section label {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.cep-busca-section input {
+  font-size: 16px;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.cep-busca-section input:focus {
+  border-color: #e21b1b;
+  box-shadow: 0 0 0 3px rgba(226, 27, 27, 0.1);
+}
+
+.cep-status {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  animation: fadeIn 0.3s;
+}
+
+.cep-status.buscando {
+  background: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #90caf9;
+}
+
+.cep-status.sucesso {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #81c784;
+}
+
+.cep-status.erro {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef5350;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .salvar-btn {
@@ -25,14 +206,49 @@
   cursor: pointer;
   margin-top: 10px;
   font-size: 16px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.salvar-btn:hover {
+  background: #c41717;
 }
 
 .loading {
   color: #555;
   font-size: 14px;
+  text-align: center;
+}
+
+.loading-container {
+  padding: 20px;
+  text-align: center;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin: 15px 0;
+}
+
+.sem-enderecos {
+  padding: 30px;
+  text-align: center;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin: 15px 0;
+  border: 2px dashed #ddd;
+}
+
+.sem-enderecos p {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  color: #666;
 }
 
 .erro {
   color: red;
   font-size: 14px;
+  padding: 10px;
+  background: #fee;
+  border-radius: 6px;
+  border: 1px solid #fcc;
 }
+

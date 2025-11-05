@@ -11,6 +11,20 @@ export default function Home() {
     document.title = "🏠 Home - World Bite";
   }, []);
 
+  // Função para verificar login e redirecionar
+  const handleEntrarClick = (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    
+    if (token) {
+      // Usuário já está logado, redirecionar para página do cliente
+      window.location.href = '/cliente';
+    } else {
+      // Usuário não está logado, ir para página de login
+      window.location.href = '/login';
+    }
+  };
+
   // Refs para as seções
   const carreiraRef = useRef(null);
   const sobreRef = useRef(null);
@@ -46,7 +60,7 @@ export default function Home() {
         </nav>
         <div className="home-actions">
           <a href="/cadastro-usuario" className="home-link">criar conta</a>
-          <a href="/login"><button className="home-btn">Entrar</button></a>
+          <a href="#" onClick={handleEntrarClick}><button className="home-btn">Entrar</button></a>
         </div>
       </header>
       <main className="home-main">

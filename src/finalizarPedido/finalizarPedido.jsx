@@ -14,16 +14,72 @@ export default function FinalizarPedido() {
   const [metodoPagamento, setMetodoPagamento] = useState("pix");
   const [loading, setLoading] = useState(false);
   const [codigoRetirada, setCodigoRetirada] = useState(null);
+  const [taxaEntrega, setTaxaEntrega] = useState(0);
+  const [enderecoEntrega, setEnderecoEntrega] = useState(null);
+  const [freteCalculado, setFreteCalculado] = useState({}); // Armazena frete por endereço ID
 
   // Mock de dados do pedido - em produção viriam do contexto/estado global
   const dadosPedido = {
     clienteId: 1, // Pegar do contexto de usuário logado
     restauranteId: 1, // Pegar do contexto do restaurante selecionado
+    enderecoRestaurante: { // Endereço do restaurante para calcular frete
+      latitude: -23.561684,
+      longitude: -46.656139
+    },
     itens: [
       { nome: "Hambúrguer Artesanal", preco: 25.90, quantidade: 1 },
       { nome: "Batata Frita", preco: 12.50, quantidade: 1 }
     ],
     valorTotal: 38.40
+  };
+
+  // Calcular frete baseado na distância (apenas uma vez por endereço)
+  const calcularFrete = (enderecoCliente) => {
+    if (tipoEntrega === "retirada") {
+      setTaxaEntrega(0);
+      return;
+    }
+
+    // Criar uma chave única para o endereço
+    const enderecoKey = enderecoCliente?.id || JSON.stringify(enderecoCliente);
+    
+    // Se já foi calculado para este endereço, reutilizar o valor
+    if (freteCalculado[enderecoKey] !== undefined) {
+      console.log(`ℹ️ Frete já calculado para este endereço: R$ ${freteCalculado[enderecoKey].toFixed(2)}`);
+      setTaxaEntrega(freteCalculado[enderecoKey]);
+      return;
+    }
+
+    // Simulação simples: R$ 3,00 por km + taxa fixa de R$ 5,00
+    // Em produção, usar Google Maps Distance Matrix API
+    const distanciaKm = Math.random() * 10 + 2; // Mock: entre 2 e 12 km
+    const frete = Math.ceil((distanciaKm * 3) + 5);
+    
+    // Armazenar o frete calculado para este endereço
+    setFreteCalculado(prev => ({
+      ...prev,
+      [enderecoKey]: frete
+    }));
+    setTaxaEntrega(frete);
+    
+    console.log(`📍 Distância estimada: ${distanciaKm.toFixed(2)} km`);
+    console.log(`💰 Frete calculado: R$ ${frete.toFixed(2)}`);
+  };
+
+  const handleEnderecoChange = (endereco) => {
+    setEnderecoEntrega(endereco);
+    if (tipoEntrega === "entrega") {
+      calcularFrete(endereco);
+    }
+  };
+
+  const handleTipoEntregaChange = (tipo) => {
+    setTipoEntrega(tipo);
+    if (tipo === "retirada") {
+      setTaxaEntrega(0);
+    } else if (enderecoEntrega) {
+      calcularFrete(enderecoEntrega);
+    }
   };
 
   const finalizarPedido = async () => {
@@ -76,11 +132,31 @@ export default function FinalizarPedido() {
     <div className="sacola-container">
       {/* COLUNA ESQUERDA */}
       <div className="col-esquerda">
-        <h1>Finalize seu pedido</h1>
+        <div className="header-finalizar">
+          <button onClick={() => navigate(-1)} className="btn-voltar">
+            ← Voltar
+          </button>
+          <h1>Finalize seu pedido</h1>
+        </div>
 
-        <EnderecoEntrega />
-        <MetodoPagamento onChange={setMetodoPagamento} />
-        <TipoEntrega onChange={setTipoEntrega} />
+        {/* Tipo de Entrega - Movido para cima */}
+        <TipoEntrega onChange={handleTipoEntregaChange} />
+
+        {/* Endereço - Só aparece se for entrega */}
+        {tipoEntrega === "entrega" && (
+          <EnderecoEntrega 
+            onEnderecoChange={handleEnderecoChange}
+            onEnderecoSelecionado={handleEnderecoChange}
+          />
+        )}
+
+        {/* Método de Pagamento */}
+        <MetodoPagamento 
+          onChange={setMetodoPagamento} 
+          valorTotal={dadosPedido.valorTotal + taxaEntrega}
+        />
+
+        {/* Cupom */}
         <Cupom />
 
         <div className="cpf-field">
@@ -117,7 +193,12 @@ export default function FinalizarPedido() {
 
       {/* COLUNA DIREITA */}
       <div className="col-direita">
-        <ResumoPedido />
+        <ResumoPedido 
+          itens={dadosPedido.itens}
+          valorTotal={dadosPedido.valorTotal}
+          taxaEntrega={taxaEntrega}
+          tipoEntrega={tipoEntrega}
+        />
       </div>
     </div>
   );

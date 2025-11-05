@@ -6,20 +6,23 @@ import PerfilCliente from './pageCliente/perfilCliente.jsx';
 import LoginPage from "./loginPage/login";
 import CadastroUsuario from "./pages/CadastroUsuario";
 import LoginPageRestaurante from "./loginpagerestaurante/LoginPageRestaurante";
-import CadastroRestaurante from "./CadastroRestaurante/CadastroRestaurante";
+import CadastroRestaurante from "./cadastroRestaurante/CadastroRestaurante";
 import TelaEmpresa from "./TelaEmpresa/TelaEmpresa";
 import PainelRestaurante from "./empresas/PainelRestaurante";
 import CadastroPrato from "./empresas/CadastroPrato";
 // 🔑 NOVIDADE: Importe o componente GerenciarCardapio
 import GerenciarCardapio from "./empresas/GerenciarCardapio"; 
 import Pedido from "./pedidos/pedidos";
-import Home from "./Home/home";
+import Home from "./home/home";
 import PageCliente from "./pageCliente/pageCliente";
 import GerenciarPerfil from "./pageCliente/GerenciarPerfil";
 import FacebookCallback from "./pages/FacebookCallback";
 import AceitarRecusarPedidos from "./empresas/AceitarRecusarPedidos";
 import PainelChamadas from "./empresas/PainelChamadas";
 import FinalizarPedido from "./finalizarPedido/finalizarPedido";
+import PagamentoSucesso from "./pages/PagamentoSucesso";
+import PagamentoPendente from "./pages/PagamentoPendente";
+import PagamentoFalha from "./pages/PagamentoFalha";
 
 export default function App() {
   return (
@@ -38,6 +41,10 @@ export default function App() {
         <Route path="/cliente" element={<PageCliente />} />
         <Route path="/gerenciar-perfil" element={<GerenciarPerfil />} />
         <Route path="/finalizar-pedido" element={<FinalizarPedido />} />
+        {/* Rotas de retorno do Mercado Pago */}
+        <Route path="/pagamento/sucesso" element={<PagamentoSucesso />} />
+        <Route path="/pagamento/pendente" element={<PagamentoPendente />} />
+        <Route path="/pagamento/falha" element={<PagamentoFalha />} />
 
 
         {/* ------------------------------------------------------------------ */}

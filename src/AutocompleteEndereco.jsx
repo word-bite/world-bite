@@ -16,6 +16,27 @@ function AutocompleteEndereco({ onPlaceSelected }) {
   const [autocomplete, setAutocomplete] = useState(null);
   const inputRef = useRef(null);
 
+  // Se não houver API key, usar input simples
+  if (!googleMapsApiKey || googleMapsApiKey === '') {
+    console.warn('⚠️ VITE_GOOGLE_MAPS_API_KEY não configurada. Usando input simples.');
+    return (
+      <input
+        ref={inputRef}
+        type="text"
+        placeholder="Digite seu endereço completo"
+        style={{ 
+          width: '100%', 
+          padding: '12px', 
+          border: '1px solid #ced4da',
+          borderRadius: '6px',
+          boxSizing: 'border-box' 
+        }}
+        disabled
+        title="Configure a API Key do Google Maps para habilitar o autocomplete"
+      />
+    );
+  }
+
   const onLoad = useCallback((autocompleteInstance) => {
     setAutocomplete(autocompleteInstance);
   }, []);
@@ -90,7 +111,7 @@ function AutocompleteEndereco({ onPlaceSelected }) {
     <LoadScript
       googleMapsApiKey={googleMapsApiKey}
       libraries={libraries}
-      loadingElement={<div>Carregando API do Google...</div>}
+      loadingElement={<div style={{padding: '12px', color: '#666', fontSize: '14px'}}>⏳ Carregando Google Maps...</div>}
     >
       <Autocomplete
         onLoad={onLoad}
@@ -103,7 +124,13 @@ function AutocompleteEndereco({ onPlaceSelected }) {
           ref={inputRef}
           type="text"
           placeholder="Digite seu endereço (ex: Av. Paulista, 1000)"
-          style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+          style={{ 
+            width: '100%', 
+            padding: '12px', 
+            border: '1px solid #ced4da',
+            borderRadius: '6px',
+            boxSizing: 'border-box' 
+          }}
         />
       </Autocomplete>
     </LoadScript>

@@ -35,7 +35,8 @@ const verificationCodes = {};
 // 3. Middlewares
 app.use(cors());
 app.use(express.json());
-app.use('/api/usuarios', usuarioRoutes);
+// ⚠️ IMPORTANTE: usuarioRoutes (protegidas) são registradas no FINAL do arquivo
+// para que as rotas públicas (/api/usuarios/cadastro, /codigo-email, etc) sejam processadas primeiro
 
 // 4. Testar a conexão com o Prisma (opcional, mas útil)
 (async () => {
@@ -134,17 +135,24 @@ app.post('/api/usuarios/cadastro', async (req, res) => {
 
 // 📧 Enviar código de verificação por email
 app.post('/api/usuarios/codigo-email', async (req, res) => {
-    try {
-        const { email } = req.body;
+    console.log('🔵 ========================================');
+    console.log('🔵 REQUISIÇÃO RECEBIDA: /api/usuarios/codigo-email');
+    console.log('🔵 Body:', req.body);
+    console.log('🔵 Headers:', req.headers);
+    console.log('🔵 ========================================');
+    
+    try {
+        const { email } = req.body;
 
-        if (!email) {
-            return res.status(400).json({
-                sucesso: false,
-                erro: 'Email é obrigatório'
-            });
-        }
-
-        // Buscar ou criar usuário
+        if (!email) {
+            console.log('❌ Email não fornecido');
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'Email é obrigatório'
+            });
+        }
+        
+        console.log(`✅ Email recebido: ${email}`);        // Buscar ou criar usuário
         let usuario = await prisma.usuario.findUnique({
             where: { email: email }
         });

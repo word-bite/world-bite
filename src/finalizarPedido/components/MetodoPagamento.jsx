@@ -16,17 +16,26 @@ export default function MetodoPagamento({ onChange, onPaymentDataChange, valorTo
   const [erro, setErro] = useState("");
 
   const API_BASE_URL = 'http://localhost:3000';
-  const MP_PUBLIC_KEY = 'TEST-YOUR-PUBLIC-KEY-HERE'; // Substitua pela sua chave pública de teste
+  const MP_PUBLIC_KEY = 'APP_USR-4e46566c-d6bf-4efb-a1e1-f154da29dc96'; // Chave pública de teste do Mercado Pago
 
   // Carregar SDK do Mercado Pago
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://sdk.mercadopago.com/js/v2';
     script.async = true;
+    script.onload = () => {
+      console.log('✅ SDK do Mercado Pago carregado');
+    };
+    script.onerror = () => {
+      console.error('❌ Erro ao carregar SDK do Mercado Pago');
+    };
     document.body.appendChild(script);
 
     return () => {
-      document.body.removeChild(script);
+      const scriptToRemove = document.querySelector('script[src="https://sdk.mercadopago.com/js/v2"]');
+      if (scriptToRemove) {
+        document.body.removeChild(scriptToRemove);
+      }
     };
   }, []);
 
@@ -46,55 +55,126 @@ export default function MetodoPagamento({ onChange, onPaymentDataChange, valorTo
   };
 
   const processarPagamentoCartao = async () => {
+    console.log('🚀 INÍCIO - processarPagamentoCartao');
+    
     try {
       setProcessando(true);
       setErro("");
 
+      console.log('📊 STEP 1 - Validando valor total:', valorTotal);
+      // Validar valor total
+      if (!valorTotal || valorTotal <= 0) {
+        throw new Error('Valor total inválido');
+      }
+
+      console.log('📊 STEP 2 - Validando dados do cartão:', {
+        numero: dadosCartao.numero ? '****' + dadosCartao.numero.slice(-4) : 'vazio',
+        titular: dadosCartao.titular || 'vazio',
+        validade: dadosCartao.validade || 'vazio',
+        cvv: dadosCartao.cvv ? '***' : 'vazio',
+        cpf: dadosCartao.cpf ? '***.' + dadosCartao.cpf.slice(-3) : 'vazio'
+      });
+
       // Validar dados do cartão
-      if (!dadosCartao.numero || !dadosCartao.titular || !dadosCartao.validade || !dadosCartao.cvv) {
+      if (!dadosCartao.numero || !dadosCartao.titular || !dadosCartao.validade || !dadosCartao.cvv || !dadosCartao.cpf) {
         throw new Error('Preencha todos os dados do cartão');
       }
 
+      console.log('� STEP 3 - Verificando SDK do Mercado Pago');
+      // Verificar se o SDK do Mercado Pago está carregado
+      if (!window.MercadoPago) {
+        throw new Error('SDK do Mercado Pago não carregado. Recarregue a página.');
+      }
+      console.log('✅ SDK carregado com sucesso');
+
+      console.log('📊 STEP 4 - Inicializando Mercado Pago com chave:', MP_PUBLIC_KEY.substring(0, 20) + '...');
       // Inicializar Mercado Pago
       const mp = new window.MercadoPago(MP_PUBLIC_KEY);
+      console.log('✅ Mercado Pago inicializado');
 
-      // Criar token do cartão
-      const cardToken = await mp.createCardToken({
-        cardNumber: dadosCartao.numero.replace(/\s/g, ''),
+      console.log('📊 STEP 5 - Validando formato da validade');
+      // Validar formato da validade
+      const validadeParts = dadosCartao.validade.split('/');
+      if (validadeParts.length !== 2) {
+        throw new Error('Formato de validade inválido. Use MM/AA');
+      }
+      console.log('✅ Formato da validade OK:', validadeParts);
+
+      console.log('� STEP 6 - Criando token do cartão...');
+      console.log('Dados para tokenização:', {
+        cardNumber: '****' + dadosCartao.numero.replace(/\s/g, '').slice(-4),
         cardholderName: dadosCartao.titular,
-        cardExpirationMonth: dadosCartao.validade.split('/')[0],
-        cardExpirationYear: '20' + dadosCartao.validade.split('/')[1],
-        securityCode: dadosCartao.cvv,
+        cardExpirationMonth: validadeParts[0],
+        cardExpirationYear: '20' + validadeParts[1],
+        securityCode: '***',
         identificationType: 'CPF',
-        identificationNumber: dadosCartao.cpf.replace(/\D/g, '')
+        identificationNumber: '***.' + dadosCartao.cpf.replace(/\D/g, '').slice(-3)
       });
+
+      let cardToken;
+      try {
+        cardToken = await mp.createCardToken({
+          cardNumber: dadosCartao.numero.replace(/\s/g, ''),
+          cardholderName: dadosCartao.titular,
+          cardExpirationMonth: validadeParts[0],
+          cardExpirationYear: '20' + validadeParts[1],
+          securityCode: dadosCartao.cvv,
+          identificationType: 'CPF',
+          identificationNumber: dadosCartao.cpf.replace(/\D/g, '')
+        });
+        console.log('✅ Token criado com sucesso:', cardToken);
+      } catch (tokenError) {
+        console.error('❌ ERRO ao criar token:', tokenError);
+        throw new Error(`Erro ao tokenizar cartão: ${tokenError.message || JSON.stringify(tokenError)}`);
+      }
+
+      console.log('📊 STEP 7 - Preparando dados para enviar ao backend');
+      const paymentData = {
+        transaction_amount: parseFloat(valorTotal),
+        token: cardToken.id,
+        description: 'Pedido World Bite',
+        installments: parseInt(dadosCartao.parcelas),
+        payment_method_id: cardToken.payment_method_id,
+        payer: {
+          email: 'cliente@worldbite.com',
+          identification: {
+            type: 'CPF',
+            number: dadosCartao.cpf.replace(/\D/g, '')
+          }
+        }
+      };
+      console.log('Dados do pagamento:', paymentData);
 
       // Enviar para o backend processar o pagamento
-      const response = await fetch(`${API_BASE_URL}/api/pagamentos/processar-pagamento`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          transaction_amount: valorTotal,
-          token: cardToken.id,
-          description: 'Pedido World Bite',
-          installments: parseInt(dadosCartao.parcelas),
-          payment_method_id: cardToken.payment_method_id,
-          payer: {
-            email: 'cliente@worldbite.com', // Você pode pegar do usuário logado
-            identification: {
-              type: 'CPF',
-              number: dadosCartao.cpf.replace(/\D/g, '')
-            }
-          }
-        })
-      });
+      console.log('📊 STEP 8 - Enviando requisição para:', `${API_BASE_URL}/api/pagamentos/processar-pagamento`);
+      let response;
+      try {
+        response = await fetch(`${API_BASE_URL}/api/pagamentos/processar-pagamento`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(paymentData)
+        });
+        console.log('✅ Resposta recebida - Status:', response.status, response.statusText);
+      } catch (fetchError) {
+        console.error('❌ ERRO na requisição HTTP:', fetchError);
+        throw new Error(`Erro de conexão com o servidor: ${fetchError.message}`);
+      }
 
-      const data = await response.json();
+      console.log('📊 STEP 9 - Processando resposta JSON');
+      let data;
+      try {
+        data = await response.json();
+        console.log('📥 Dados recebidos do backend:', JSON.stringify(data, null, 2));
+      } catch (jsonError) {
+        console.error('❌ ERRO ao processar JSON:', jsonError);
+        throw new Error('Resposta inválida do servidor');
+      }
 
+      console.log('📊 STEP 10 - Verificando sucesso do pagamento');
       if (data.sucesso) {
-        console.log('✅ Pagamento aprovado:', data.payment_id);
+        console.log('✅✅✅ PAGAMENTO APROVADO! ID:', data.payment_id);
         if (onPaymentDataChange) {
           onPaymentDataChange({
             metodo: 'cartao',
@@ -104,14 +184,20 @@ export default function MetodoPagamento({ onChange, onPaymentDataChange, valorTo
         }
         alert('Pagamento aprovado com sucesso!');
       } else {
-        throw new Error(data.erro || 'Erro ao processar pagamento');
+        console.error('❌ Pagamento não aprovado:', data);
+        throw new Error(data.erro || data.detalhes || 'Erro ao processar pagamento');
       }
 
     } catch (error) {
-      console.error('❌ Erro no pagamento:', error);
-      setErro(error.message || 'Erro ao processar pagamento');
+      console.error('❌❌❌ ERRO GERAL no pagamento:', {
+        message: error.message,
+        stack: error.stack,
+        error: error
+      });
+      setErro(error.message || 'Erro ao processar pagamento. Verifique os dados do cartão.');
     } finally {
       setProcessando(false);
+      console.log('🏁 FIM - processarPagamentoCartao');
     }
   };
 
@@ -172,6 +258,20 @@ export default function MetodoPagamento({ onChange, onPaymentDataChange, valorTo
   return (
     <div className="metodo-pagamento-box">
       <h3>Forma de pagamento</h3>
+
+      {/* Aviso sobre HTTPS */}
+      <div style={{
+        background: '#fff3cd',
+        border: '1px solid #ffc107',
+        borderRadius: '8px',
+        padding: '12px',
+        marginBottom: '15px',
+        fontSize: '13px',
+        color: '#856404'
+      }}>
+        <strong>⚠️ Ambiente de Desenvolvimento:</strong><br/>
+        Pagamento com cartão requer HTTPS em produção. Use <strong>PIX</strong> para testes ou configure HTTPS local.
+      </div>
 
       <div className="pagamento-opcoes">
         <div
