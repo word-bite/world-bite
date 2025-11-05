@@ -129,7 +129,7 @@ export default function CadastroRestaurante() {
           <Link
             to="/login"
             className="cadastro-btn"
-            style={{ marginTop: 16, background: "#e0f7e9", color: "#234236" }}
+            style={{ width: "150px", textAlign: "center", marginTop: 16, background: "#e0f7e9", color: "#234236" }}
           >
             Voltar ao Login
           </Link>
