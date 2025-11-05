@@ -1,7 +1,4 @@
-// Configuração da API baseada no ambiente
-const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-
-export const API_BASE_URL = isDevelopment 
-  ? 'http://localhost:3000'  // Em desenvolvimento, usa localhost
-  : window.location.origin;   // Em produção (Vercel), usa a mesma origem (com /api nas rotas)
+// Configuração da API para DESENVOLVIMENTO (branch dev)
+// Esta branch sempre usa localhost
+export const API_BASE_URL = 'http://localhost:3000';
 
