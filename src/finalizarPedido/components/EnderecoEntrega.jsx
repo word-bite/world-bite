@@ -40,7 +40,7 @@ export default function EnderecoEntrega({ onEnderecoChange, onEnderecoSelecionad
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/usuarios/enderecos', {
+      const response = await fetch(`${API_BASE_URL}/api/usuarios/enderecos`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

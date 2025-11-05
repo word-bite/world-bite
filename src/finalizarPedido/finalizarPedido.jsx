@@ -89,7 +89,7 @@ export default function FinalizarPedido() {
     setLoading(true);
     
     try {
-      const response = await fetch(`${API_BASE_URL}/api/pedidos/finalizar', {
+      const response = await fetch(`${API_BASE_URL}/api/pedidos/finalizar`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

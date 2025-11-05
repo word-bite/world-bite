@@ -16,7 +16,7 @@ export default function LoginPageRestaurante() {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/send-verification-code', {
+      const response = await fetch(`${API_BASE_URL}/api/send-verification-code`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -47,7 +47,7 @@ export default function LoginPageRestaurante() {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/login-rapido', {
+        const response = await fetch(`${API_BASE_URL}/api/login-rapido`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ export default function LoginPageRestaurante() {
     e.preventDefault();
     
     try {
-      const response = await fetch(`${API_BASE_URL}/api/verify-code', {
+      const response = await fetch(`${API_BASE_URL}/api/verify-code`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

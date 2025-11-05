@@ -29,7 +29,7 @@ export default function CadastroRestaurante() {
     const cnpjLimpo = formData.cnpj.replace(/\D/g, '');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/restaurantes", {
+      const response = await fetch(`${API_BASE_URL}/restaurantes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

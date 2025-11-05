@@ -60,7 +60,7 @@ export default function GerenciarPerfil() {
       const token = localStorage.getItem('auth_token');
       if (!token) return;
       
-      const response = await fetch(`${API_BASE_URL}/api/usuarios/enderecos', {
+      const response = await fetch(`${API_BASE_URL}/api/usuarios/enderecos`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -201,8 +201,8 @@ export default function GerenciarPerfil() {
       }
       
       const url = enderecoEditando 
-        ? `http://localhost:3000/api/usuarios/enderecos/${enderecoEditando.id}`
-        : `${API_BASE_URL}/api/usuarios/enderecos';
+        ? `${API_BASE_URL}/api/usuarios/enderecos/${enderecoEditando.id}`
+        : `${API_BASE_URL}/api/usuarios/enderecos`;
       
       const method = enderecoEditando ? 'PUT' : 'POST';
 
