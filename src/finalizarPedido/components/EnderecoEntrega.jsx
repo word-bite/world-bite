@@ -220,6 +220,14 @@ export default function EnderecoEntrega({ onEnderecoChange, onEnderecoSelecionad
 
       {!carregando && (mostrarNovoEndereco || enderecosSalvos.length === 0) && (
         <div className="novo-endereco-form">
+          <h3>Digite o endereço de entrega:</h3>
+          {import.meta.env.VITE_GOOGLE_MAPS_API_KEY && (
+            <>
+              <AutocompleteEndereco onPlaceSelected={handlePlaceSelected} />
+              <div style={{marginBottom: '20px'}}></div>
+            </>
+          )}
+          
           <label>CEP *</label>
           <input
             type="text"
@@ -237,13 +245,6 @@ export default function EnderecoEntrega({ onEnderecoChange, onEnderecoSelecionad
             <p className={`cep-status ${erroCep.includes('✅') ? 'sucesso' : 'erro'}`}>
               {erroCep}
             </p>
-          )}
-
-          {import.meta.env.VITE_GOOGLE_MAPS_API_KEY && (
-            <>
-              <AutocompleteEndereco onPlaceSelected={handlePlaceSelected} />
-              <div style={{marginBottom: '20px'}}></div>
-            </>
           )}
 
           <label>Logradouro *</label>
