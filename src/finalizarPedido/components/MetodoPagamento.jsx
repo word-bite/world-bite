@@ -122,11 +122,23 @@ export default function MetodoPagamento({ onChange, onPaymentDataChange, valorTo
           identificationType: 'CPF',
           identificationNumber: dadosCartao.cpf.replace(/\D/g, '')
         });
-        console.log('✅ Token criado com sucesso:', cardToken);
+        console.log('✅ Token criado com sucesso');
+        console.log('📦 CAMPOS DO TOKEN:', Object.keys(cardToken));
+        console.log('📦 Token completo:', JSON.stringify(cardToken, null, 2));
       } catch (tokenError) {
         console.error('❌ ERRO ao criar token:', tokenError);
         throw new Error(`Erro ao tokenizar cartão: ${tokenError.message || JSON.stringify(tokenError)}`);
       }
+
+      // Verificar se o payment_method_id foi retornado
+      if (!cardToken.payment_method_id) {
+        console.error('❌ ERRO: payment_method_id não retornado pelo Mercado Pago');
+        console.error('� Campos disponíveis:', Object.keys(cardToken));
+        console.error('🔍 Tentando acessar:', cardToken.payment_method_id);
+        throw new Error('Não foi possível identificar a bandeira do cartão. Verifique o número do cartão.');
+      }
+      
+      console.log('✅ payment_method_id encontrado:', cardToken.payment_method_id);
 
       console.log('📊 STEP 7 - Preparando dados para enviar ao backend');
       const paymentData = {
