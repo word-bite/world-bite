@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { API_BASE_URL } from "../config/api";
 import { Link, useNavigate } from "react-router-dom";
 import "./LoginPageRestaurante.css";
 import "../loginPage/login.css"; // Para os estilos da logo
@@ -15,7 +16,7 @@ export default function LoginPageRestaurante() {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:3000/api/send-verification-code', {
+      const response = await fetch(`${API_BASE_URL}/api/send-verification-code', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,7 +47,7 @@ export default function LoginPageRestaurante() {
     }
 
     try {
-        const response = await fetch('http://localhost:3000/api/login-rapido', {
+        const response = await fetch(`${API_BASE_URL}/api/login-rapido', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -74,7 +75,7 @@ export default function LoginPageRestaurante() {
     e.preventDefault();
     
     try {
-      const response = await fetch('http://localhost:3000/api/verify-code', {
+      const response = await fetch(`${API_BASE_URL}/api/verify-code', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

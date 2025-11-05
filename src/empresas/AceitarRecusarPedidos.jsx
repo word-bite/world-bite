@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from "../config/api";
 import './empresas.css'; // Importa o CSS animado
 
 export default function GerenciarPedidos() {
@@ -18,7 +19,7 @@ export default function GerenciarPedidos() {
       // Simular restauranteId - em produção, buscar pelo CNPJ
       const restauranteId = 1; // TODO: Buscar ID real do restaurante pelo CNPJ
       
-      const resposta = await fetch(`http://localhost:3000/api/pedidos?restauranteId=${restauranteId}`);
+      const resposta = await fetch(`${API_BASE_URL}/api/pedidos?restauranteId=${restauranteId}`);
       const dados = await resposta.json();
       setPedidos(dados);
     } catch (error) {
@@ -33,7 +34,7 @@ export default function GerenciarPedidos() {
   // Função para aceitar pedido
   const aceitarPedido = async (id) => {
     try {
-      const resposta = await fetch(`http://localhost:3000/api/pedidos/${id}/aceitar`, { method: 'POST' });
+      const resposta = await fetch(`${API_BASE_URL}/api/pedidos/${id}/aceitar`, { method: 'POST' });
       if (resposta.ok) {
         setMensagem('Pedido aceito com sucesso!');
         await carregarPedidos(); // Atualiza lista após ação
@@ -49,7 +50,7 @@ export default function GerenciarPedidos() {
   // Função para recusar pedido
   const recusarPedido = async (id) => {
     try {
-      const resposta = await fetch(`http://localhost:3000/api/pedidos/${id}/recusar`, { method: 'POST' });
+      const resposta = await fetch(`${API_BASE_URL}/api/pedidos/${id}/recusar`, { method: 'POST' });
       if (resposta.ok) {
         setMensagem('Pedido recusado com sucesso!');
         await carregarPedidos(); // Atualiza lista após ação
@@ -65,7 +66,7 @@ export default function GerenciarPedidos() {
   // Função para marcar pedido como pronto
   const marcarComoPronto = async (id) => {
     try {
-      const resposta = await fetch(`http://localhost:3000/api/pedidos/${id}/pronto`, { method: 'POST' });
+      const resposta = await fetch(`${API_BASE_URL}/api/pedidos/${id}/pronto`, { method: 'POST' });
       if (resposta.ok) {
         setMensagem('Pedido marcado como pronto!');
         await carregarPedidos(); // Atualiza lista após ação

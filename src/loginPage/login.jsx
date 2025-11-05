@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../config/api";
 import "./login.css";
 
 export default function LoginPage() {
@@ -12,8 +13,6 @@ export default function LoginPage() {
   const [code, setCode] = useState('');
   const [step, setStep] = useState('login');
   const [user, setUser] = useState(null);
-
-  const API_BASE_URL = 'http://localhost:3000';
 
   useEffect(() => {
     const token = localStorage.getItem('auth_token');

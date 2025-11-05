@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../config/api";
 import "../loginPage/login.css"; // Reutilizar estilos do login
 
 export default function CadastroUsuario() {
@@ -12,8 +13,6 @@ export default function CadastroUsuario() {
   const [code, setCode] = useState('');
   const [step, setStep] = useState('signup'); // 'signup' -> 'verify' -> 'complete'
   const navigate = useNavigate();
-
-  const API_BASE_URL = 'http://localhost:3000';
 
   // Definir título da página para debug
   React.useEffect(() => {

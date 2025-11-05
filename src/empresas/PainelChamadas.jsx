@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from "../config/api";
 import RetiradaModal from './RetiradaModal';
 import './empresas.css';
 
@@ -22,7 +23,7 @@ export default function PainelChamadas() {
       // Simular restauranteId - em produção, buscar pelo CNPJ
       const restauranteId = 1;
       
-      const resposta = await fetch(`http://localhost:3000/api/pedidos/retirada?restauranteId=${restauranteId}`);
+      const resposta = await fetch(`${API_BASE_URL}/api/pedidos/retirada?restauranteId=${restauranteId}`);
       const dados = await resposta.json();
       setPedidosRetirada(dados);
     } catch (error) {
@@ -35,7 +36,7 @@ export default function PainelChamadas() {
   // Função para confirmar retirada
   const confirmarRetirada = async (codigo) => {
     try {
-      const resposta = await fetch('http://localhost:3000/api/pedidos/confirmar-retirada', {
+      const resposta = await fetch(`${API_BASE_URL}/api/pedidos/confirmar-retirada', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

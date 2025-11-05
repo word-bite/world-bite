@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from "../config/api";
 import './perfilCliente.css'; // Nosso novo CSS
 import { FaTrash, FaPlus, FaHome, FaBriefcase, FaMapMarkerAlt } from 'react-icons/fa';
 
@@ -10,7 +11,7 @@ import AutocompleteEndereco from '../AutocompleteEndereco';
 
 // Hook customizado para facilitar chamadas à API (token lido dinamicamente a cada requisição)
 const useApi = () => {
-  const API_BASE_URL = 'http://localhost:3000/api/usuarios';
+  const API_BASE_URL = `${API_BASE_URL}/api/usuarios';
 
   const getToken = () => {
     // tenta chaves simples
