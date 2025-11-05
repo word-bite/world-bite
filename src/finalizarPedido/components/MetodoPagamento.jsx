@@ -185,7 +185,18 @@ export default function MetodoPagamento({ onChange, onPaymentDataChange, valorTo
         alert('Pagamento aprovado com sucesso!');
       } else {
         console.error('❌ Pagamento não aprovado:', data);
-        throw new Error(data.erro || data.detalhes || 'Erro ao processar pagamento');
+        console.error('📊 Detalhes completos:', JSON.stringify(data, null, 2));
+        
+        // Mostrar detalhes específicos se estiverem disponíveis
+        let errorMsg = data.erro || 'Erro ao processar pagamento';
+        if (data.detalhes) {
+          errorMsg += '\nDetalhes: ' + JSON.stringify(data.detalhes);
+        }
+        if (data.body_recebido) {
+          console.error('📦 Body enviado ao backend:', data.body_recebido);
+        }
+        
+        throw new Error(errorMsg);
       }
 
     } catch (error) {

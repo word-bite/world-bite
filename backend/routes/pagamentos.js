@@ -95,6 +95,8 @@ router.post('/processar-pagamento', async (req, res) => {
     console.log('- transaction_amount:', transaction_amount);
     console.log('- token:', token ? token.substring(0, 20) + '...' : 'AUSENTE');
     console.log('- payment_method_id:', payment_method_id);
+    console.log('- payer:', payer);
+    console.log('📦 BODY COMPLETO:', JSON.stringify(req.body, null, 2));
 
     // Validação
     if (!transaction_amount || !token || !payment_method_id) {
@@ -106,7 +108,8 @@ router.post('/processar-pagamento', async (req, res) => {
           transaction_amount: !!transaction_amount,
           token: !!token,
           payment_method_id: !!payment_method_id
-        }
+        },
+        body_recebido: req.body
       });
     }
 
