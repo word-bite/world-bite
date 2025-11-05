@@ -160,12 +160,21 @@ export default function FinalizarPedido() {
         {/* Cupom */}
         <Cupom />
 
-        <div className="cpf-field">
-          <label>CPF/CNPJ na nota</label>
-          <input type="text" placeholder="Digite seu CPF ou CNPJ" />
-        </div>
-
         <div className="observacoes-field">
+          <label>CPF/CNPJ na nota</label>
+          <input 
+            type="text" 
+            placeholder="Digite seu CPF ou CNPJ"
+            style={{
+              width: '100%',
+              padding: '12px',
+              border: '1px solid #ddd',
+              borderRadius: '8px',
+              fontSize: '14px',
+              marginBottom: '15px'
+            }}
+          />
+          
           <label>Observações (opcional)</label>
           <textarea 
             placeholder="Ex: Sem cebola, ponto da carne, etc."

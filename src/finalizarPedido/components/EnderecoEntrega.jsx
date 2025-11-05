@@ -220,32 +220,27 @@ export default function EnderecoEntrega({ onEnderecoChange, onEnderecoSelecionad
 
       {!carregando && (mostrarNovoEndereco || enderecosSalvos.length === 0) && (
         <div className="novo-endereco-form">
-          <div className="cep-busca-section">
-            <label>CEP *</label>
-            <input
-              type="text"
-              name="cep"
-              value={endereco.cep}
-              onChange={handleCepChange}
-              placeholder="00000-000"
-              maxLength="9"
-              required
-            />
-            {buscandoCep && (
-              <p className="cep-status buscando">🔍 Buscando CEP...</p>
-            )}
-            {erroCep && (
-              <p className={`cep-status ${erroCep.includes('✅') ? 'sucesso' : 'erro'}`}>
-                {erroCep}
-              </p>
-            )}
-          </div>
+          <label>CEP *</label>
+          <input
+            type="text"
+            name="cep"
+            value={endereco.cep}
+            onChange={handleCepChange}
+            placeholder="00000-000"
+            maxLength="9"
+            required
+          />
+          {buscandoCep && (
+            <p className="cep-status buscando">🔍 Buscando CEP...</p>
+          )}
+          {erroCep && (
+            <p className={`cep-status ${erroCep.includes('✅') ? 'sucesso' : 'erro'}`}>
+              {erroCep}
+            </p>
+          )}
 
           {import.meta.env.VITE_GOOGLE_MAPS_API_KEY && (
             <>
-              <div style={{margin: '10px 0', textAlign: 'center', color: '#666', fontSize: '14px'}}>
-                ou use o autocomplete
-              </div>
               <AutocompleteEndereco onPlaceSelected={handlePlaceSelected} />
               <div style={{marginBottom: '20px'}}></div>
             </>
