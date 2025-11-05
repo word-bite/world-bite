@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../config/api";
 import "./finalizarPedido.css";
@@ -18,8 +18,32 @@ export default function FinalizarPedido() {
   const [taxaEntrega, setTaxaEntrega] = useState(0);
   const [enderecoEntrega, setEnderecoEntrega] = useState(null);
   const [freteCalculado, setFreteCalculado] = useState({}); // Armazena frete por endereço ID
+  const [itensCarrinho, setItensCarrinho] = useState([]);
 
-  // Mock de dados do pedido - em produção viriam do contexto/estado global
+  // Carregar itens do carrinho do localStorage
+  useEffect(() => {
+    const carrinhoSalvo = localStorage.getItem('carrinho');
+    if (carrinhoSalvo) {
+      try {
+        const itens = JSON.parse(carrinhoSalvo);
+        setItensCarrinho(itens);
+        console.log('🛒 Carrinho carregado:', itens);
+      } catch (error) {
+        console.error('❌ Erro ao carregar carrinho:', error);
+        setItensCarrinho([]);
+      }
+    } else {
+      console.warn('⚠️ Nenhum item no carrinho');
+      setItensCarrinho([]);
+    }
+  }, []);
+
+  // Calcular valor total do carrinho
+  const valorTotal = itensCarrinho.reduce((sum, item) => {
+    return sum + (item.price * item.quantity);
+  }, 0);
+
+  // Mock de dados do pedido - agora usando dados reais do carrinho
   const dadosPedido = {
     clienteId: 1, // Pegar do contexto de usuário logado
     restauranteId: 1, // Pegar do contexto do restaurante selecionado
@@ -27,11 +51,8 @@ export default function FinalizarPedido() {
       latitude: -23.561684,
       longitude: -46.656139
     },
-    itens: [
-      { nome: "Hambúrguer Artesanal", preco: 25.90, quantidade: 1 },
-      { nome: "Batata Frita", preco: 12.50, quantidade: 1 }
-    ],
-    valorTotal: 38.40
+    itens: itensCarrinho,
+    valorTotal: valorTotal
   };
 
   // Calcular frete baseado na distância (apenas uma vez por endereço)

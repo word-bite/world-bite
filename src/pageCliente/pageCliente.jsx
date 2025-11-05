@@ -788,13 +788,19 @@ export default function PageCliente() {
             <strong>{formatCurrency(total)}</strong>
           </div>
         </div>
-        <button type="button" className="bag-button" disabled={bagItems.length === 0} onClick={() => navigate('/finalizar-pedido')}>
+        <button type="button" className="bag-button" disabled={bagItems.length === 0} onClick={() => {
+          localStorage.setItem('carrinho', JSON.stringify(bagItems));
+          navigate('/finalizar-pedido');
+        }}>
           {bagItems.length === 0 ? "Escolha seu prato" : "Escolher forma de pagamento"}
         </button>
       </aside>
 
       <div className="bag-mobile">
-        <button type="button" onClick={() => navigate('/finalizar-pedido')} disabled={bagItems.length === 0}>
+        <button type="button" onClick={() => {
+          localStorage.setItem('carrinho', JSON.stringify(bagItems));
+          navigate('/finalizar-pedido');
+        }} disabled={bagItems.length === 0}>
           <div>
             <strong>Sacola</strong>
             <span>

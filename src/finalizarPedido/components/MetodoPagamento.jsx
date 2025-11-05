@@ -18,6 +18,39 @@ export default function MetodoPagamento({ onChange, onPaymentDataChange, valorTo
 
   const MP_PUBLIC_KEY = 'APP_USR-4e46566c-d6bf-4efb-a1e1-f154da29dc96'; // Chave pública de teste do Mercado Pago
 
+  // Função para detectar a bandeira do cartão pelo número
+  const detectarBandeiraCartao = (numeroCartao) => {
+    const numero = numeroCartao.replace(/\s/g, '');
+    
+    // Mastercard: começa com 51-55 ou 2221-2720
+    if (/^5[1-5]/.test(numero) || /^2(22[1-9]|2[3-9][0-9]|[3-6][0-9]{2}|7[01][0-9]|720)/.test(numero)) {
+      return 'master';
+    }
+    
+    // Visa: começa com 4
+    if (/^4/.test(numero)) {
+      return 'visa';
+    }
+    
+    // American Express: começa com 34 ou 37
+    if (/^3[47]/.test(numero)) {
+      return 'amex';
+    }
+    
+    // Elo: vários BINs
+    if (/^(4011|438935|45(1416|76|7393)|50(4175|6699|67[0-7][0-9]|9000)|627780|636297|636368)/.test(numero)) {
+      return 'elo';
+    }
+    
+    // Hipercard: começa com 38 ou 60
+    if (/^(38|60)/.test(numero)) {
+      return 'hipercard';
+    }
+    
+    console.warn('⚠️ Bandeira não identificada, usando "visa" como padrão');
+    return 'visa'; // Padrão se não identificar
+  };
+
   // Carregar SDK do Mercado Pago
   useEffect(() => {
     const script = document.createElement('script');

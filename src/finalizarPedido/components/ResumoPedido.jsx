@@ -1,7 +1,13 @@
 import React from "react";
 
 export default function ResumoPedido({ itens = [], valorTotal = 0, taxaEntrega = 0, tipoEntrega = "entrega" }) {
-  const subtotal = itens.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
+  // Calcular subtotal com suporte para ambas estruturas de dados
+  const subtotal = itens.reduce((acc, item) => {
+    const preco = item.price || item.preco || 0;
+    const quantidade = item.quantity || item.quantidade || 1;
+    return acc + (preco * quantidade);
+  }, 0);
+  
   const total = tipoEntrega === "entrega" ? subtotal + taxaEntrega : subtotal;
 
   const formatCurrency = (value) => {
@@ -16,17 +22,23 @@ export default function ResumoPedido({ itens = [], valorTotal = 0, taxaEntrega =
         {itens.length === 0 ? (
           <p className="resumo-vazio">Nenhum item no carrinho</p>
         ) : (
-          itens.map((item, index) => (
-            <div key={index} className="resumo-item">
-              <div className="item-info">
-                <span className="item-nome">{item.nome || item.name}</span>
-                <span className="item-quantidade">x{item.quantidade || item.quantity}</span>
+          itens.map((item, index) => {
+            const nome = item.name || item.nome || 'Item sem nome';
+            const preco = item.price || item.preco || 0;
+            const quantidade = item.quantity || item.quantidade || 1;
+            
+            return (
+              <div key={index} className="resumo-item">
+                <div className="item-info">
+                  <span className="item-nome">{nome}</span>
+                  <span className="item-quantidade">x{quantidade}</span>
+                </div>
+                <span className="item-preco">
+                  {formatCurrency(preco * quantidade)}
+                </span>
               </div>
-              <span className="item-preco">
-                {formatCurrency((item.preco || item.price) * (item.quantidade || item.quantity))}
-              </span>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
