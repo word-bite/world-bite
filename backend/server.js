@@ -32,6 +32,16 @@ const verificationCodes = {};
 app.use(cors());
 app.use(express.json());
 
+// Rota de health check para testar se o backend está funcionando
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        status: 'OK', 
+        message: 'Backend World Bite funcionando!',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
+
 // 4. Testar a conexão com o Prisma (opcional, mas útil)
 (async () => {
     try {
