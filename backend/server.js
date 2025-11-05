@@ -15,6 +15,12 @@ const emailService = require('./services/emailService');
 // 🔑 IMPORTAÇÃO DAS ROTAS DE PRATOS
 const pratoRoutes = require('./routes/pratos');
 
+// 🔑 IMPORTAÇÃO DAS ROTAS DE PAGAMENTOS
+const pagamentosRoutes = require('./routes/pagamentos');
+
+// 🔑 IMPORTAÇÃO DAS ROTAS DE PEDIDOS
+const pedidosRoutes = require('./routes/pedidos');
+
 // 2. Configurar a aplicação Express e Nexmo
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -939,6 +945,12 @@ app.get('/api/test-email', async (req, res) => {
 
 // 🔑 INTEGRAÇÃO DO CRUD DE PRATOS
 app.use('/api/restaurante/prato', pratoRoutes); 
+
+// 🔑 INTEGRAÇÃO DAS ROTAS DE PAGAMENTOS
+app.use('/api/pagamentos', pagamentosRoutes);
+
+// 🔑 INTEGRAÇÃO DAS ROTAS DE PEDIDOS
+app.use('/api/pedidos', pedidosRoutes);
 
 // 🏠 Rota principal
 app.get('/', (req, res) => {
