@@ -1,13 +1,11 @@
 // src/components/FacebookLogin/FacebookLogin.jsx
 import React, { useState } from 'react';
 import './FacebookLogin.css';
+import { API_BASE_URL } from '../../config/api';
 
 const FacebookLogin = ({ onLoginSuccess, onLoginError }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-
-  // URL base da API (ajuste conforme necessário)
-  const API_BASE_URL = `${API_BASE_URL}';
 
   /**
    * 1. INICIAR LOGIN COM FACEBOOK
@@ -173,7 +171,6 @@ export const useFacebookCallback = () => {
 
       console.log('📱 Processando callback do Facebook...');
 
-      const API_BASE_URL = `${API_BASE_URL}';
       const redirectUri = `${window.location.origin}/auth/facebook/callback`;
 
       const response = await fetch(`${API_BASE_URL}/api/auth/facebook/callback`, {

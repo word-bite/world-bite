@@ -28,19 +28,17 @@ export default function CadastroPrato() {
 
   // 🔑 Função para CARREGAR os pratos do restaurante logado
   const fetchPratos = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const headers = getCnpjHeader();
-      const response = await fetch(`${API_BASE_URL}/api/restaurante/prato', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          ...headers, // Adiciona o header de autenticação
-        },
-      });
-
-      if (!response.ok) {
+  setLoading(true);
+  setError(null);
+  try {
+    const headers = getCnpjHeader();
+    const response = await fetch(`${API_BASE_URL}/api/restaurante/prato`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers, // Adiciona o header de autenticação
+      },
+    });      if (!response.ok) {
         const errData = await response.json();
         throw new Error(errData.error || 'Falha ao carregar pratos.');
       }
@@ -75,22 +73,20 @@ export default function CadastroPrato() {
       
       const novoPratoData = {
         nome,
-        descricao,
-        preco: parseFloat(preco), // Garante que o preço seja número
-        categoria,
-        urlImagem,
-      };
+      descricao,
+      preco: parseFloat(preco), // Garante que o preço seja número
+      categoria,
+      urlImagem,
+    };
 
-      const response = await fetch(`${API_BASE_URL}/api/restaurante/prato', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...headers, // Adiciona o header de autenticação
-        },
-        body: JSON.stringify(novoPratoData),
-      });
-
-      if (!response.ok) {
+    const response = await fetch(`${API_BASE_URL}/api/restaurante/prato`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers, // Adiciona o header de autenticação
+      },
+      body: JSON.stringify(novoPratoData),
+    });      if (!response.ok) {
         const errData = await response.json();
         throw new Error(errData.error || 'Falha ao cadastrar prato.');
       }
