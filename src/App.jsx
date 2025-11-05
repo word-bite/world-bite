@@ -16,6 +16,8 @@ import Pedido from "./pedidos/pedidos";
 import Home from "./home/home";
 import PageCliente from "./pageCliente/pageCliente";
 import FacebookCallback from "./pages/FacebookCallback";
+import GerenciarPerfil from "./pageCliente/GerenciarPerfil";
+import FinalizarPedido from "./finalizarPedido/finalizarPedido";
 
 export default function App() {
   return (
@@ -30,6 +32,8 @@ export default function App() {
         <Route path="/auth/facebook/callback" element={<FacebookCallback />} />
         <Route path="/pedidos" element={<Pedido />} />
         <Route path="/cliente" element={<PageCliente />} />
+        <Route path="/gerenciar-perfil" element={<GerenciarPerfil />} />
+        <Route path="/finalizar-pedido" element={<FinalizarPedido />} />
 
         {/* ROTAS PROTEGIDAS PELA SESSÃO DO RESTAURANTE */}
         <Route element={<PrivateRoute />}>
