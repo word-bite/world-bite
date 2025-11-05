@@ -270,20 +270,6 @@ export default function MetodoPagamento({ onChange, onPaymentDataChange, valorTo
     <div className="metodo-pagamento-box">
       <h3>Forma de pagamento</h3>
 
-      {/* Aviso sobre HTTPS */}
-      <div style={{
-        background: '#fff3cd',
-        border: '1px solid #ffc107',
-        borderRadius: '8px',
-        padding: '12px',
-        marginBottom: '15px',
-        fontSize: '13px',
-        color: '#856404'
-      }}>
-        <strong>⚠️ Ambiente de Desenvolvimento:</strong><br/>
-        Pagamento com cartão requer HTTPS em produção. Use <strong>PIX</strong> para testes ou configure HTTPS local.
-      </div>
-
       <div className="pagamento-opcoes">
         <div
           className={`pagamento-item ${metodo === "pix" ? "ativo" : ""}`}

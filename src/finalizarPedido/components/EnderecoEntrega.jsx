@@ -243,11 +243,11 @@ export default function EnderecoEntrega({ onEnderecoChange, onEnderecoSelecionad
 
           {import.meta.env.VITE_GOOGLE_MAPS_API_KEY && (
             <>
-              <div style={{margin: '15px 0', textAlign: 'center', color: '#999'}}>
+              <div style={{margin: '10px 0', textAlign: 'center', color: '#666', fontSize: '14px'}}>
                 ou use o autocomplete
               </div>
-              <label>Buscar Endereço</label>
               <AutocompleteEndereco onPlaceSelected={handlePlaceSelected} />
+              <div style={{marginBottom: '20px'}}></div>
             </>
           )}
 
