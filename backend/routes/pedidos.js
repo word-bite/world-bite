@@ -38,6 +38,75 @@ const enviarNotificacao = async (cliente, codigo, nomeRestaurante) => {
 };
 
 // =======================================================
+// ROTA 0: CRIAR PEDIDO GENÉRICO (POST /api/pedidos) - Para Flutter App
+// =======================================================
+router.post('/', async (req, res) => {
+    try {
+        const {
+            clienteId,
+            restauranteId,
+            status,
+            valorTotal,
+            taxaEntrega,
+            tipo,
+            formaPagamento,
+            observacoes,
+            itens,
+        } = req.body;
+
+        console.log('📥 Recebendo pedido do Flutter:', req.body);
+
+        // Validação básica
+        if (!clienteId || !restauranteId || !valorTotal || !itens || itens.length === 0) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'Dados incompletos. clienteId, restauranteId, valorTotal e itens são obrigatórios',
+            });
+        }
+
+        // Gerar código de retirada se for retirada
+        const codigoRetirada = tipo === 'retirada' ? gerarCodigoRetirada() : null;
+
+        // Criar pedido no banco
+        const novoPedido = await prisma.pedido.create({
+            data: {
+                clienteId: parseInt(clienteId),
+                restauranteId: parseInt(restauranteId),
+                status: status || 'pendente',
+                tipoEntrega: tipo || 'entrega',
+                valorTotal: parseFloat(valorTotal),
+                codigoRetirada,
+                observacoes: observacoes || null,
+                itens: JSON.stringify(itens), // Salvar itens como JSON
+            },
+            include: {
+                cliente: {
+                    select: { nome: true, email: true, telefone: true }
+                },
+                restaurante: {
+                    select: { nome: true }
+                }
+            }
+        });
+
+        console.log('✅ Pedido criado:', novoPedido.id);
+
+        res.status(201).json({
+            sucesso: true,
+            pedido: novoPedido,
+            mensagem: `Pedido #${novoPedido.id} criado com sucesso!`,
+        });
+    } catch (error) {
+        console.error('❌ Erro ao criar pedido:', error);
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro ao criar pedido',
+            detalhes: error.message,
+        });
+    }
+});
+
+// =======================================================
 // ROTA 1: FINALIZAR PEDIDO (POST /api/pedidos/finalizar)
 // =======================================================
 router.post('/finalizar', async (req, res) => {

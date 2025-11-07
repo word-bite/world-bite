@@ -28,7 +28,8 @@ model Restaurante {
   data_atualizacao      DateTime  @default(now()) @db.Timestamptz
 
  
-  pratos                Prato[] 
+  pratos                Prato[]
+  pedidos               Pedido[] // Relação com pedidos
 
   @@map("Restaurantes")
 }
@@ -80,5 +81,29 @@ model Usuario {
   data_atualizacao      DateTime  @updatedAt @db.Timestamptz
   ultimo_login          DateTime? @db.Timestamptz
 
+  pedidos               Pedido[] // Relação com pedidos
+
   @@map("usuarios")
+}
+
+// Modelo Pedido
+model Pedido {
+  id                    Int       @id @default(autoincrement())
+  clienteId             Int       @map("cliente_id")
+  restauranteId         Int       @map("restaurante_id")
+  status                String    @default("pendente") @db.VarChar(50) // pendente, aceito, preparando, pronto, em_entrega, entregue, cancelado, recusado, retirado
+  tipoEntrega           String    @default("entrega") @map("tipo_entrega") @db.VarChar(20) // entrega, retirada
+  valorTotal            Decimal   @map("valor_total") @db.Decimal(10, 2)
+  taxaEntrega           Decimal?  @default(0) @map("taxa_entrega") @db.Decimal(10, 2)
+  codigoRetirada        String?   @map("codigo_retirada") @db.VarChar(4)
+  observacoes           String?   @db.Text
+  itens                 String    @db.Text // JSON dos itens do pedido
+  criadoEm              DateTime  @default(now()) @map("criado_em") @db.Timestamptz
+  atualizadoEm          DateTime  @updatedAt @map("atualizado_em") @db.Timestamptz
+
+  // Relações
+  cliente               Usuario      @relation(fields: [clienteId], references: [id])
+  restaurante           Restaurante  @relation(fields: [restauranteId], references: [id])
+
+  @@map("pedidos")
 }

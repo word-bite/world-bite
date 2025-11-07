@@ -1,8 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-// IMPORTANTE: Importe o PrivateRoute
 import { PrivateRoute } from "./components/PrivateRoute"; 
-
 import LoginPage from "./loginPage/login";
 import CadastroUsuario from "./pages/CadastroUsuario";
 import LoginPageRestaurante from "./loginpagerestaurante/LoginPageRestaurante";
@@ -10,7 +8,6 @@ import CadastroRestaurante from "./cadastroRestaurante/CadastroRestaurante";
 import TelaEmpresa from "./TelaEmpresa/TelaEmpresa";
 import PainelRestaurante from "./empresas/PainelRestaurante";
 import CadastroPrato from "./empresas/CadastroPrato";
-// 🔑 NOVIDADE: Importe o componente GerenciarCardapio
 import GerenciarCardapio from "./empresas/GerenciarCardapio"; 
 import Pedido from "./pedidos/pedidos";
 import Home from "./home/home";
