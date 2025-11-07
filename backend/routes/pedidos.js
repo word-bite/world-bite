@@ -38,6 +38,59 @@ const enviarNotificacao = async (cliente, codigo, nomeRestaurante) => {
 };
 
 // =======================================================
+// ROTA -1: LISTAR TODOS OS PEDIDOS PÚBLICOS (GET /publico) - SEM AUTENTICAÇÃO
+// =======================================================
+router.get('/publico', async (req, res) => {
+    try {
+        const { status, restauranteId } = req.query;
+
+        console.log('📋 Listando pedidos públicos (sem autenticação)');
+
+        const where = {};
+        if (status) where.status = status;
+        if (restauranteId) where.restauranteId = parseInt(restauranteId);
+
+        const pedidos = await prisma.pedido.findMany({
+            where,
+            orderBy: { criadoEm: 'desc' },
+            include: {
+                cliente: {
+                    select: { nome: true, email: true, telefone: true }
+                },
+                restaurante: {
+                    select: { nome: true, endereco: true }
+                }
+            }
+        });
+
+        // Formatar pedidos
+        const pedidosFormatados = pedidos.map(p => ({
+            id: p.id,
+            clienteId: p.clienteId,
+            restauranteId: p.restauranteId,
+            cliente: p.cliente.nome,
+            restaurante: p.restaurante.nome,
+            status: p.status,
+            valorTotal: parseFloat(p.valorTotal),
+            taxaEntrega: parseFloat(p.taxaEntrega || 0),
+            tipoEntrega: p.tipoEntrega,
+            codigoRetirada: p.codigoRetirada,
+            observacoes: p.observacoes,
+            itens: p.itens ? JSON.parse(p.itens) : [],
+            criadoEm: p.criadoEm,
+            atualizadoEm: p.atualizadoEm
+        }));
+
+        console.log(`✅ ${pedidosFormatados.length} pedidos encontrados`);
+        res.json({ sucesso: true, pedidos: pedidosFormatados });
+        
+    } catch (error) {
+        console.error('❌ Erro ao listar pedidos públicos:', error);
+        res.status(500).json({ sucesso: false, erro: 'Erro ao buscar pedidos' });
+    }
+});
+
+// =======================================================
 // ROTA 0: CRIAR PEDIDO GENÉRICO (POST /api/pedidos) - Para Flutter App
 // =======================================================
 router.post('/', async (req, res) => {

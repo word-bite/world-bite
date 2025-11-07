@@ -9,6 +9,37 @@ const router = express.Router();
 const prisma = new PrismaClient();
 
 // =======================================================
+// ROTA 0: LISTAGEM PÚBLICA (GET /publico) - SEM AUTENTICAÇÃO
+// =======================================================
+router.get('/publico', async (req, res) => {
+    try {
+        console.log('📋 Listando pratos públicos (sem autenticação)');
+
+        // Buscar todos os pratos disponíveis de todos os restaurantes
+        const pratos = await prisma.prato.findMany({
+            where: { disponivel: true },
+            orderBy: { nome: 'asc' },
+            include: {
+                restaurante: {
+                    select: {
+                        id: true,
+                        nome: true,
+                        endereco: true,
+                    }
+                }
+            }
+        });
+
+        console.log(`✅ ${pratos.length} pratos encontrados`);
+        res.status(200).json(pratos);
+        
+    } catch (error) {
+        console.error('❌ Erro ao listar pratos públicos:', error);
+        res.status(500).json({ error: 'Erro interno ao buscar pratos.' });
+    }
+});
+
+// =======================================================
 // ROTA 1: CRIAÇÃO (POST)
 // =======================================================
 router.post('/', authRestaurante, async (req, res) => {
