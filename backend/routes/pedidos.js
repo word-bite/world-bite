@@ -117,8 +117,9 @@ router.post('/', async (req, res) => {
             });
         }
 
-        // Gerar código de retirada se for retirada
-        const codigoRetirada = tipo === 'retirada' ? gerarCodigoRetirada() : null;
+        // ✅ SEMPRE gerar código de retirada (4 dígitos)
+        const codigoRetirada = gerarCodigoRetirada();
+        console.log(`🔢 Código de retirada gerado: ${codigoRetirada}`);
 
         // Criar pedido no banco
         const novoPedido = await prisma.pedido.create({
@@ -180,12 +181,9 @@ router.post('/finalizar', async (req, res) => {
             });
         }
 
-        let codigoRetirada = null;
-        
-        // Gerar código apenas se for retirada na loja
-        if (tipoEntrega === 'retirada') {
-            codigoRetirada = gerarCodigoRetirada();
-        }
+        // ✅ SEMPRE gerar código de retirada (4 dígitos)
+        const codigoRetirada = gerarCodigoRetirada();
+        console.log(`🔢 Código de retirada gerado: ${codigoRetirada}`);
 
         // Criar pedido no banco
         const novoPedido = await prisma.pedido.create({
@@ -209,21 +207,17 @@ router.post('/finalizar', async (req, res) => {
             }
         });
 
-        // Enviar notificação se for retirada
-        if (tipoEntrega === 'retirada' && codigoRetirada) {
-            await enviarNotificacao(
-                novoPedido.cliente,
-                codigoRetirada,
-                novoPedido.restaurante.nome
-            );
-        }
+        // Enviar notificação (sempre, pois sempre tem código agora)
+        await enviarNotificacao(
+            novoPedido.cliente,
+            codigoRetirada,
+            novoPedido.restaurante.nome
+        );
 
         res.status(201).json({
             sucesso: true,
             pedido: novoPedido,
-            mensagem: tipoEntrega === 'retirada' 
-                ? `Pedido criado! Código de retirada: ${codigoRetirada}` 
-                : 'Pedido criado para entrega!'
+            mensagem: `Pedido criado! Código de retirada: ${codigoRetirada}`
         });
 
     } catch (error) {
