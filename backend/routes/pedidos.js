@@ -227,6 +227,73 @@ router.get('/', async (req, res) => {
 });
 
 // =======================================================
+// ROTA 2.5: ATUALIZAR STATUS DO PEDIDO (PUT /api/pedidos/:id/status) - Para Flutter
+// =======================================================
+router.put('/:id/status', async (req, res) => {
+    try {
+        const pedidoId = parseInt(req.params.id);
+        const { status } = req.body;
+
+        console.log(`📝 Atualizando status do pedido #${pedidoId} para: ${status}`);
+
+        if (!status) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'Status é obrigatório',
+            });
+        }
+
+        // Validar status
+        const statusValidos = [
+            'pendente',
+            'aceito',
+            'preparando',
+            'pronto',
+            'em_entrega',
+            'entregue',
+            'cancelado',
+            'recusado',
+            'retirado'
+        ];
+
+        if (!statusValidos.includes(status)) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: `Status inválido. Use: ${statusValidos.join(', ')}`,
+            });
+        }
+
+        const pedidoAtualizado = await prisma.pedido.update({
+            where: { id: pedidoId },
+            data: { status },
+        });
+
+        console.log(`✅ Status do pedido #${pedidoId} atualizado com sucesso`);
+
+        res.json({
+            sucesso: true,
+            pedido: pedidoAtualizado,
+            mensagem: `Status atualizado para ${status}`,
+        });
+    } catch (error) {
+        console.error('❌ Erro ao atualizar status:', error);
+        
+        if (error.code === 'P2025') {
+            return res.status(404).json({
+                sucesso: false,
+                erro: 'Pedido não encontrado',
+            });
+        }
+
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro ao atualizar status',
+            detalhes: error.message,
+        });
+    }
+});
+
+// =======================================================
 // ROTA 3: ACEITAR PEDIDO (POST /api/pedidos/:id/aceitar)
 // =======================================================
 router.post('/:id/aceitar', async (req, res) => {
