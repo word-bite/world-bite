@@ -30,8 +30,14 @@ router.get('/publico', async (req, res) => {
             }
         });
 
-        console.log(`✅ ${pratos.length} pratos encontrados`);
-        res.status(200).json(pratos);
+        // Converter preco de Decimal (String) para Number
+        const pratosFormatados = pratos.map(p => ({
+            ...p,
+            preco: parseFloat(p.preco),
+        }));
+
+        console.log(`✅ ${pratosFormatados.length} pratos encontrados`);
+        res.status(200).json(pratosFormatados);
         
     } catch (error) {
         console.error('❌ Erro ao listar pratos públicos:', error);
