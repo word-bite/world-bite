@@ -21,9 +21,11 @@ body {
   margin-bottom: 10px;
 }
 
-.home-logo {
+.logo-img {
   height: 48px;
-  border-radius: 25px;
+  max-width: 150px;
+  object-fit: contain;
+  border-radius: 8px;
 }
 
 .header-search {
@@ -183,4 +185,205 @@ button {
     font-size: 13px;
     padding: 6px 10px;
   }
+}
+
+/* ===== NOVOS ESTILOS ===== */
+.loading-pedidos {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #666;
+}
+
+.sem-pedidos {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  margin: 20px 0;
+}
+
+.sem-pedidos p {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.btn-voltar-home {
+  background: #1f724a;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.pedido-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pedido-numero {
+  font-size: 13px;
+  color: #999;
+  margin: 5px 0;
+}
+
+.codigo-retirada-info {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  padding: 10px;
+  border-radius: 6px;
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.pedido-valores {
+  background: #f9f9f9;
+  padding: 12px;
+  border-radius: 6px;
+  margin: 10px 0;
+}
+
+.pedido-valores p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.pedido-valores .total {
+  font-size: 16px;
+  color: #1f724a;
+  border-top: 1px solid #ddd;
+  padding-top: 8px;
+  margin-top: 8px;
+}
+
+.observacoes {
+  background: #e3f2fd;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  margin: 10px 0;
+  font-style: italic;
+}
+
+.pedido-data {
+  font-size: 12px;
+  color: #999;
+  margin-top: 10px;
+}
+
+.btn-avaliar {
+  background: #ffc107;
+  color: #333;
+  font-weight: 600;
+}
+
+.btn-avaliar:hover {
+  background: #ffb300;
+}
+
+/* Modal de Avaliação */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-avaliacao {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal-avaliacao h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.modal-avaliacao p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.estrelas {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+  font-size: 40px;
+}
+
+.estrela {
+  cursor: pointer;
+  filter: grayscale(100%);
+  opacity: 0.3;
+  transition: all 0.2s;
+}
+
+.estrela.ativa {
+  filter: grayscale(0%);
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.estrela:hover {
+  transform: scale(1.2);
+}
+
+.modal-avaliacao textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  resize: vertical;
+  margin-bottom: 20px;
+}
+
+.modal-acoes {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btn-cancelar {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.btn-cancelar:hover {
+  background: #e0e0e0;
+}
+
+.btn-enviar {
+  background: #1f724a;
+  color: white;
+}
+
+.btn-enviar:hover {
+  background: #165a3a;
 }

@@ -1,0 +1,8 @@
+# Ignorar todos os arquivos PDF temporários
+*.pdf
+
+# Ignorar todos os arquivos neste diretório
+*
+
+# Mas manter o diretório no git
+!.gitignore

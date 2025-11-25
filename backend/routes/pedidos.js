@@ -3,6 +3,7 @@
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const emailService = require('../services/emailService');
+const notaFiscalService = require('../services/notaFiscalService');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -164,20 +165,38 @@ router.post('/', async (req, res) => {
 // ROTA 1: FINALIZAR PEDIDO (POST /api/pedidos/finalizar)
 // =======================================================
 router.post('/finalizar', async (req, res) => {
+    let caminhoNF = null;
+    
     try {
+        console.log('📥 Recebendo pedido para finalizar:', JSON.stringify(req.body, null, 2));
+        
         const { 
             clienteId, 
             restauranteId, 
             tipoEntrega, 
             itens, 
-            valorTotal, 
-            observacoes 
+            valorTotal,
+            taxaEntrega,
+            observacoes,
+            cliente: dadosCliente,
+            endereco,
+            cpfCnpjNota
         } = req.body;
 
         // Validações
         if (!clienteId || !restauranteId || !tipoEntrega || !itens || !valorTotal) {
+            console.error('❌ Validação falhou. Dados recebidos:', { clienteId, restauranteId, tipoEntrega, itens: typeof itens, valorTotal });
             return res.status(400).json({ 
-                error: 'Campos obrigatórios: clienteId, restauranteId, tipoEntrega, itens, valorTotal' 
+                success: false,
+                message: 'Campos obrigatórios: clienteId, restauranteId, tipoEntrega, itens, valorTotal' 
+            });
+        }
+
+        // Validar email do cliente
+        if (!dadosCliente || !dadosCliente.email) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email do cliente é obrigatório para envio da nota fiscal'
             });
         }
 
@@ -186,6 +205,7 @@ router.post('/finalizar', async (req, res) => {
         console.log(`🔢 Código de retirada gerado: ${codigoRetirada}`);
 
         // Criar pedido no banco
+        console.log('💾 Criando pedido no banco de dados...');
         const novoPedido = await prisma.pedido.create({
             data: {
                 clienteId: parseInt(clienteId),
@@ -193,8 +213,9 @@ router.post('/finalizar', async (req, res) => {
                 tipoEntrega,
                 codigoRetirada,
                 status: 'pendente',
-                itens,
+                itens: typeof itens === 'string' ? itens : JSON.stringify(itens),
                 valorTotal: parseFloat(valorTotal),
+                taxaEntrega: parseFloat(taxaEntrega || 0),
                 observacoes
             },
             include: {
@@ -202,12 +223,70 @@ router.post('/finalizar', async (req, res) => {
                     select: { nome: true, email: true, telefone: true }
                 },
                 restaurante: {
-                    select: { nome: true }
+                    select: { nome: true, cnpj: true, endereco: true, telefone_contato: true }
                 }
             }
         });
+        
+        console.log('✅ Pedido criado com sucesso! ID:', novoPedido.id);
 
-        // Enviar notificação (sempre, pois sempre tem código agora)
+        // ============================================
+        // GERAR E ENVIAR NOTA FISCAL
+        // ============================================
+        try {
+            console.log('📄 Gerando nota fiscal...');
+            
+            // Dados para a nota fiscal
+            const dadosNF = {
+                pedido: novoPedido,
+                cliente: {
+                    nome: dadosCliente.nome,
+                    email: dadosCliente.email,
+                    cpf: dadosCliente.cpf || cpfCnpjNota,
+                    telefone: dadosCliente.celular
+                },
+                restaurante: novoPedido.restaurante,
+                itens: novoPedido.itens,
+                endereco: endereco
+            };
+
+            // Gerar PDF da nota fiscal
+            caminhoNF = await notaFiscalService.gerarNotaFiscal(dadosNF);
+            console.log('✅ Nota fiscal gerada:', caminhoNF);
+
+            // Enviar nota fiscal por email
+            console.log('📧 Enviando nota fiscal por email...');
+            const emailResult = await emailService.enviarNotaFiscal(
+                dadosCliente.email,
+                dadosCliente.nome,
+                caminhoNF,
+                {
+                    id: novoPedido.id,
+                    tipoEntrega: novoPedido.tipoEntrega,
+                    valorTotal: novoPedido.valorTotal,
+                    codigoRetirada: novoPedido.codigoRetirada
+                }
+            );
+
+            if (emailResult.success) {
+                console.log('✅ Nota fiscal enviada com sucesso!');
+            } else {
+                console.warn('⚠️ Falha no envio da nota fiscal:', emailResult.error);
+            }
+
+            // Deletar arquivo temporário após envio
+            if (caminhoNF) {
+                setTimeout(() => {
+                    notaFiscalService.deletarArquivo(caminhoNF);
+                }, 5000); // Aguardar 5 segundos antes de deletar
+            }
+
+        } catch (errorNF) {
+            console.error('❌ Erro ao processar nota fiscal:', errorNF);
+            // Não falha o pedido por causa da nota fiscal
+        }
+
+        // Enviar notificação tradicional
         await enviarNotificacao(
             novoPedido.cliente,
             codigoRetirada,
@@ -216,13 +295,28 @@ router.post('/finalizar', async (req, res) => {
 
         res.status(201).json({
             sucesso: true,
+            success: true,
             pedido: novoPedido,
-            mensagem: `Pedido criado! Código de retirada: ${codigoRetirada}`
+            mensagem: `Pedido criado! Código de retirada: ${codigoRetirada}`,
+            message: 'Nota fiscal enviada para o e-mail do cliente.'
         });
 
     } catch (error) {
-        console.error('Erro ao finalizar pedido:', error);
-        res.status(500).json({ error: 'Erro interno ao finalizar pedido' });
+        console.error('❌ Erro ao finalizar pedido:', error);
+        console.error('Stack trace:', error.stack);
+        
+        // Limpar arquivo em caso de erro
+        if (caminhoNF) {
+            notaFiscalService.deletarArquivo(caminhoNF);
+        }
+        
+        res.status(500).json({ 
+            success: false,
+            sucesso: false,
+            error: 'Erro interno ao finalizar pedido',
+            message: 'Não foi possível finalizar o pedido. Tente novamente em alguns instantes.',
+            detalhes: error.message
+        });
     }
 });
 
@@ -501,6 +595,110 @@ router.get('/retirada', async (req, res) => {
     } catch (error) {
         console.error('Erro ao buscar pedidos para retirada:', error);
         res.status(500).json({ error: 'Erro interno ao buscar pedidos' });
+    }
+});
+
+// =======================================================
+// ROTA 8: LISTAR PEDIDOS DO CLIENTE (GET /api/pedidos/cliente/:clienteId)
+// =======================================================
+router.get('/cliente/:clienteId', async (req, res) => {
+    try {
+        const clienteId = parseInt(req.params.clienteId);
+
+        console.log(`📋 Buscando pedidos do cliente #${clienteId}`);
+
+        const pedidos = await prisma.pedido.findMany({
+            where: { clienteId },
+            include: {
+                restaurante: {
+                    select: { 
+                        nome: true, 
+                        endereco: true,
+                        telefone_contato: true
+                    }
+                }
+            },
+            orderBy: { criadoEm: 'desc' }
+        });
+
+        const pedidosFormatados = pedidos.map(p => ({
+            id: p.id,
+            restaurante: p.restaurante.nome,
+            restauranteEndereco: p.restaurante.endereco,
+            restauranteTelefone: p.restaurante.telefone_contato,
+            status: p.status,
+            tipoEntrega: p.tipoEntrega,
+            valorTotal: parseFloat(p.valorTotal),
+            taxaEntrega: parseFloat(p.taxaEntrega || 0),
+            codigoRetirada: p.codigoRetirada,
+            observacoes: p.observacoes,
+            itens: p.itens ? JSON.parse(p.itens) : [],
+            avaliacao: p.avaliacao,
+            comentarioAvaliacao: p.comentarioAvaliacao,
+            criadoEm: p.criadoEm,
+            atualizadoEm: p.atualizadoEm
+        }));
+
+        console.log(`✅ ${pedidosFormatados.length} pedidos encontrados`);
+        res.json({ sucesso: true, pedidos: pedidosFormatados });
+
+    } catch (error) {
+        console.error('❌ Erro ao buscar pedidos do cliente:', error);
+        res.status(500).json({ 
+            sucesso: false, 
+            erro: 'Erro ao buscar pedidos' 
+        });
+    }
+});
+
+// =======================================================
+// ROTA 9: AVALIAR PEDIDO (POST /api/pedidos/:id/avaliar)
+// =======================================================
+router.post('/:id/avaliar', async (req, res) => {
+    try {
+        const pedidoId = parseInt(req.params.id);
+        const { avaliacao, comentario } = req.body;
+
+        console.log(`⭐ Avaliando pedido #${pedidoId}: ${avaliacao} estrelas`);
+
+        // Validação
+        if (!avaliacao || avaliacao < 1 || avaliacao > 5) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'Avaliação deve ser entre 1 e 5 estrelas'
+            });
+        }
+
+        const pedidoAtualizado = await prisma.pedido.update({
+            where: { id: pedidoId },
+            data: {
+                avaliacao: parseInt(avaliacao),
+                comentarioAvaliacao: comentario || null
+            }
+        });
+
+        console.log(`✅ Pedido #${pedidoId} avaliado com sucesso`);
+
+        res.json({
+            sucesso: true,
+            pedido: pedidoAtualizado,
+            mensagem: 'Avaliação registrada com sucesso!'
+        });
+
+    } catch (error) {
+        console.error('❌ Erro ao avaliar pedido:', error);
+        
+        if (error.code === 'P2025') {
+            return res.status(404).json({
+                sucesso: false,
+                erro: 'Pedido não encontrado'
+            });
+        }
+
+        res.status(500).json({
+            sucesso: false,
+            erro: 'Erro ao registrar avaliação'
+        });
     }
 });
 

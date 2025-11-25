@@ -91,10 +91,11 @@ export default function LoginPageRestaurante() {
         // Limpa o CNPJ
         const cnpjLimpo = cnpj.replace(/[^\d]/g, ''); 
         
-        // 🔑 SALVA CNPJ E O NOME (NOVO PASSO)
-        localStorage.setItem('restauranteLogado', cnpjLimpo);
-        // O backend agora deve retornar data.nomeRestaurante
+        // 🔑 SALVA AS INFORMAÇÕES DO RESTAURANTE
+        localStorage.setItem('restauranteLogado', 'true'); // Flag para PrivateRoute
+        localStorage.setItem('restauranteCnpj', cnpjLimpo); // CNPJ para uso posterior
         localStorage.setItem('restauranteNome', data.nomeRestaurante || 'Restaurante');
+        localStorage.setItem('tokenRestaurante', data.token || `temp_token_${Date.now()}`); // Token para validação
         
         // Redireciona para a tela-empresa
         navigate('/tela-empresa');
