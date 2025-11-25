@@ -75,10 +75,10 @@ async function main() {
         tipoEntrega: 'retirada',
         codigoRetirada: '6363',
         status: 'pronto',
-        itens: [
+        itens: JSON.stringify([
           { nome: 'Hambúrguer Artesanal', preco: 25.90, quantidade: 1 },
           { nome: 'Batata Frita', preco: 12.50, quantidade: 1 }
-        ],
+        ]),
         valorTotal: 38.40,
         observacoes: 'Sem cebola no hambúrguer'
       }
@@ -89,9 +89,9 @@ async function main() {
         restauranteId: restaurante.id,
         tipoEntrega: 'entrega',
         status: 'aceito',
-        itens: [
+        itens: JSON.stringify([
           { nome: 'Hambúrguer Artesanal', preco: 25.90, quantidade: 2 }
-        ],
+        ]),
         valorTotal: 51.80
       }
     }),
@@ -102,9 +102,9 @@ async function main() {
         tipoEntrega: 'retirada',
         codigoRetirada: '1234',
         status: 'pendente',
-        itens: [
+        itens: JSON.stringify([
           { nome: 'Batata Frita', preco: 12.50, quantidade: 2 }
-        ],
+        ]),
         valorTotal: 25.00
       }
     })

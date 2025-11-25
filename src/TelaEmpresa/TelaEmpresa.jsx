@@ -18,12 +18,14 @@ export default function TelaEmpresa() {
     
     // LER OS DADOS DO LOCAL STORAGE
     const nomeRestaurante = localStorage.getItem('restauranteNome');
-    const cnpjRestaurante = localStorage.getItem('restauranteLogado');
+    const cnpjRestaurante = localStorage.getItem('restauranteCnpj');
 
     const handleLogout = () => {
-        // Limpa ambos os itens de sessão (CNPJ e Nome)
+        // Limpa todos os itens de sessão do restaurante
         localStorage.removeItem('restauranteLogado'); 
         localStorage.removeItem('restauranteNome'); 
+        localStorage.removeItem('restauranteCnpj');
+        localStorage.removeItem('tokenRestaurante');
         
         navigate('/login-restaurante'); 
     };

@@ -19,6 +19,21 @@ export default function FinalizarPedido() {
   const [enderecoEntrega, setEnderecoEntrega] = useState(null);
   const [freteCalculado, setFreteCalculado] = useState({}); // Armazena frete por endereço ID
   const [itensCarrinho, setItensCarrinho] = useState([]);
+  const [usuarioLogado, setUsuarioLogado] = useState(null);
+
+  // Carregar usuário logado do localStorage
+  useEffect(() => {
+    const userData = localStorage.getItem('user_data');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        setUsuarioLogado(user);
+        console.log('👤 Usuário logado:', user);
+      } catch (error) {
+        console.error('❌ Erro ao carregar dados do usuário:', error);
+      }
+    }
+  }, []);
 
   // Carregar itens do carrinho do localStorage
   useEffect(() => {
@@ -107,9 +122,28 @@ export default function FinalizarPedido() {
   const finalizarPedido = async () => {
     if (loading) return;
     
+    // Verificar se usuário está logado
+    if (!usuarioLogado) {
+      alert('⚠️ Você precisa fazer login para finalizar o pedido!');
+      navigate('/login');
+      return;
+    }
+
+    // Verificar se tem email
+    if (!usuarioLogado.email) {
+      alert('⚠️ Seu cadastro não possui email. Por favor, complete seu cadastro para receber a nota fiscal.');
+      return;
+    }
+    
     setLoading(true);
     
     try {
+      // Coletar dados do formulário
+      const cpfCnpjNota = document.querySelector('input[placeholder="Digite seu CPF ou CNPJ"]')?.value;
+      const observacoes = document.querySelector('textarea')?.value;
+      
+      console.log('📧 Enviando nota fiscal para:', usuarioLogado.email);
+      
       const response = await fetch(`${API_BASE_URL}/api/pedidos/finalizar`, {
         method: 'POST',
         headers: {
@@ -119,32 +153,55 @@ export default function FinalizarPedido() {
           clienteId: dadosPedido.clienteId,
           restauranteId: dadosPedido.restauranteId,
           tipoEntrega: tipoEntrega,
-          itens: dadosPedido.itens,
-          valorTotal: dadosPedido.valorTotal,
-          observacoes: document.querySelector('textarea')?.value || null
+          itens: JSON.stringify(dadosPedido.itens),
+          valorTotal: dadosPedido.valorTotal + taxaEntrega,
+          taxaEntrega: taxaEntrega,
+          observacoes: observacoes || null,
+          cpfCnpjNota: cpfCnpjNota || null,
+          // Dados do cliente logado
+          cliente: {
+            nome: usuarioLogado.nome || 'Cliente',
+            email: usuarioLogado.email, // Email do usuário logado
+            cpf: usuarioLogado.cpf || cpfCnpjNota || null,
+            celular: usuarioLogado.telefone || null
+          },
+          // Endereço (se entrega)
+          endereco: tipoEntrega === 'entrega' && enderecoEntrega ? {
+            cep: '01234567',
+            rua: 'Rua Exemplo',
+            numero: '123',
+            complemento: 'Apto 45',
+            bairro: 'Centro',
+            cidade: 'São Paulo',
+            estado: 'SP'
+          } : null
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Erro ao finalizar pedido');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erro ao finalizar pedido');
       }
 
       const resultado = await response.json();
       
       if (resultado.sucesso) {
+        // Limpar carrinho
+        localStorage.removeItem('carrinho');
+        
         if (tipoEntrega === 'retirada' && resultado.pedido.codigoRetirada) {
           setCodigoRetirada(resultado.pedido.codigoRetirada);
-          alert(`Pedido confirmado! 🎉\n\nCódigo de retirada: ${resultado.pedido.codigoRetirada}\n\nGuarde este código para retirar seu pedido na loja.`);
+          alert(`🎉 Pedido confirmado!\n\nCódigo de retirada: ${resultado.pedido.codigoRetirada}\n\n📧 Nota fiscal enviada para: ${usuarioLogado.email}\n\nGuarde este código para retirar seu pedido na loja.`);
         } else {
-          alert('Pedido confirmado! Em breve você receberá a entrega.');
+          alert(`🎉 Pedido confirmado!\n\n📧 Nota fiscal enviada para: ${usuarioLogado.email}\n\nEm breve você receberá a entrega.`);
         }
         
         // Redirecionar para página de acompanhamento
-        navigate('/pedidos');
+        setTimeout(() => navigate('/pedidos'), 2000);
       }
     } catch (error) {
       console.error('Erro ao finalizar pedido:', error);
-      alert('Erro ao finalizar pedido. Tente novamente.');
+      alert('Algo deu errado. Tente novamente em alguns instantes! 🔄');
     } finally {
       setLoading(false);
     }
@@ -220,6 +277,20 @@ export default function FinalizarPedido() {
           {loading ? 'Processando...' : 
            tipoEntrega === 'retirada' ? 'Confirmar pedido para retirada' : 'Fazer pedido'}
         </button>
+        
+        <p style={{
+          textAlign: 'center',
+          marginTop: '16px',
+          fontSize: '14px',
+          color: '#666',
+          fontStyle: 'italic',
+          padding: '12px',
+          backgroundColor: '#f0f8ff',
+          borderRadius: '8px',
+          border: '1px solid #cce7ff'
+        }}>
+          📧 A nota fiscal será enviada para: <strong>{usuarioLogado?.email || 'Faça login para receber'}</strong>
+        </p>
       </div>
 
       {/* COLUNA DIREITA */}
