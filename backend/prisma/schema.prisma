@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ma/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Restaurante {
+  id                    Int       @id @default(autoincrement())
+  nome                  String    @db.VarChar(100)
+  cnpj                  String    @unique @db.VarChar(14)
+  descricao             String?   @db.Text
+  endereco              String    @db.Text
+  telefone_contato      String?   @db.VarChar(20)
+  email_contato         String?   @db.VarChar(255)
+  nota_media            Decimal?  @default(0.00) @db.Decimal(3, 2)
+  tempo_medio_entrega   Int?
+  pais_id               String    @db.VarChar(255)
+  ativo                 Boolean?  @default(true)
+  horario_abertura      DateTime? @db.Time
+  horario_fechamento    DateTime? @db.Time
+  data_criacao          DateTime  @default(now()) @db.Timestamptz
+  data_atualizacao      DateTime  @default(now()) @db.Timestamptz
+
+ 
+  pratos                Prato[]
+  pedidos               Pedido[] // Relação com pedidos
+
+  @@map("Restaurantes")
+}
+
+
+// 1. Defina o ENUM
+enum CategoriaPrato {
+  PRINCIPAL
+  SOBREMESA
+  ENTRADA
+  BEBIDA
+  PROMOCAO
+}
+
+// 2. O Model Prato (Inalterado)
+model Prato {
+  id               Int            @id @default(autoincrement())
+  nome             String         @db.VarChar(100)
+  descricao        String
+  preco            Decimal        @db.Decimal(10, 2)
+  categoria        CategoriaPrato // Usa o enum definido
+  disponivel       Boolean        @default(true)
+  urlImagem        String?        @db.VarChar(255) @map("url_imagem")
+  dataCriacao      DateTime       @default(now()) @map("data_criacao") @db.Timestamptz
+  dataAtualizacao  DateTime       @updatedAt @map("data_atualizacao") @db.Timestamptz
+
+  // Relação com o Restaurante
+  restaurante      Restaurante    @relation(fields: [restauranteId], references: [id])
+  restauranteId    Int            @map("restaurante_id")
+
+  @@map("pratos")
+}
+
+// Modelo Usuario para autenticação
+model Usuario {
+  id                    Int       @id @default(autoincrement())
+  nome                  String    @db.VarChar(100)
+  email                 String?   @unique @db.VarChar(255)
+  telefone              String?   @unique @db.VarChar(20)
+  facebook_id           String?   @unique @db.VarChar(255)
+  googleId              String?   @unique @db.VarChar(255) @map("google_id")
+  fotoPerfil            String?   @db.VarChar(500) @map("foto_perfil")
+  avatar_url            String?   @db.VarChar(500)
+  provider              String?   @default("local") @db.VarChar(50) // 'local', 'facebook', 'google'
+  codigo_verificacao    String?   @db.VarChar(10)
+  codigo_expira_em      DateTime? @db.Timestamptz
+  email_verificado      Boolean   @default(false)
+  telefone_verificado   Boolean   @default(false)
+  verificado            Boolean   @default(false)
+  ativo                 Boolean   @default(true)
+  data_criacao          DateTime  @default(now()) @db.Timestamptz
+  data_atualizacao      DateTime  @updatedAt @db.Timestamptz
+  ultimo_login          DateTime? @db.Timestamptz
+
+  pedidos               Pedido[] // Relação com pedidos
+
+  @@map("usuarios")
+}
+
+// Modelo Pedido
+model Pedido {
+  id                    Int       @id @default(autoincrement())
+  clienteId             Int       @map("cliente_id")
+  restauranteId         Int       @map("restaurante_id")
+  status                String    @default("pendente") @db.VarChar(50) // pendente, aceito, preparando, pronto, em_entrega, entregue, cancelado, recusado, retirado
+  tipoEntrega           String    @default("entrega") @map("tipo_entrega") @db.VarChar(20) // entrega, retirada
+  valorTotal            Decimal   @map("valor_total") @db.Decimal(10, 2)
+  taxaEntrega           Decimal?  @default(0) @map("taxa_entrega") @db.Decimal(10, 2)
+  codigoRetirada        String?   @map("codigo_retirada") @db.VarChar(4)
+  observacoes           String?   @db.Text
+  itens                 String    @db.Text // JSON dos itens do pedido
+  avaliacao             Int?      @db.Integer // 1 a 5 estrelas
+  comentarioAvaliacao   String?   @map("comentario_avaliacao") @db.Text
+  criadoEm              DateTime  @default(now()) @map("criado_em") @db.Timestamptz
+  atualizadoEm          DateTime  @updatedAt @map("atualizado_em") @db.Timestamptz
+
+  // Relações
+  cliente               Usuario      @relation(fields: [clienteId], references: [id])
+  restaurante           Restaurante  @relation(fields: [restauranteId], references: [id])
+
+  @@map("pedidos")
+}

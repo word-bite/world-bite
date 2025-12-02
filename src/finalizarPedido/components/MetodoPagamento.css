@@ -1,0 +1,178 @@
+.metodo-pagamento-box {
+  margin-top: 25px;
+}
+
+.pagamento-opcoes {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.pagamento-item {
+  width: 150px;
+  padding: 15px;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.pagamento-item img {
+  width: 40px;
+  height: 40px;
+}
+
+.pagamento-item.ativo {
+  border-color: #008000;
+  background: #e6ffe6;
+}
+
+/* Mensagens de erro */
+.erro-pagamento {
+  background-color: #fee;
+  color: #c00;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 15px 0;
+  border: 1px solid #fcc;
+  font-size: 14px;
+}
+
+/* Informações PIX */
+.pix-info {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.pix-info h4 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.pix-info p {
+  margin: 8px 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.btn-gerar-pix {
+  width: 100%;
+  padding: 12px;
+  background-color: #00bcbc;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: background-color 0.2s;
+}
+
+.btn-gerar-pix:hover {
+  background-color: #009999;
+}
+
+.btn-gerar-pix:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Formulário de Cartão */
+.formulario-cartao {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #008000;
+  box-shadow: 0 0 0 3px rgba(0, 128, 0, 0.1);
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+.btn-processar-cartao {
+  width: 100%;
+  padding: 12px;
+  background-color: #008000;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+}
+
+.btn-processar-cartao:hover {
+  background-color: #006600;
+}
+
+.btn-processar-cartao:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Informações de Dinheiro */
+.dinheiro-info {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #fff9e6;
+  border-radius: 8px;
+  border: 1px solid #ffe066;
+}
+
+.dinheiro-info h4 {
+  margin: 0 0 10px 0;
+  color: #856404;
+  font-size: 16px;
+}
+
+.dinheiro-info p {
+  margin: 8px 0;
+  color: #856404;
+  font-size: 14px;
+  line-height: 1.5;
+}

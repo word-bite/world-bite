@@ -1,0 +1,80 @@
+/* src/components/FacebookLogin/FacebookLogin.css */
+
+.facebook-login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.facebook-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  
+  background-color: #1877f2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  min-width: 200px;
+  min-height: 48px;
+}
+
+.facebook-login-btn:hover:not(:disabled) {
+  background-color: #166fe5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(24, 119, 242, 0.3);
+}
+
+.facebook-login-btn:active {
+  transform: translateY(0);
+}
+
+.facebook-login-btn:disabled {
+  background-color: #8fa7c4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.facebook-icon {
+  flex-shrink: 0;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-message {
+  background-color: #fee;
+  color: #c33;
+  padding: 10px 15px;
+  border-radius: 6px;
+  border-left: 4px solid #c33;
+  font-size: 14px;
+  text-align: center;
+  max-width: 300px;
+}
+
+/* Responsivo */
+@media (max-width: 480px) {
+  .facebook-login-btn {
+    width: 100%;
+    min-width: unset;
+  }
+}
