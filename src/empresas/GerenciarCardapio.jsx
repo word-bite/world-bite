@@ -33,35 +33,35 @@ export default function GerenciarCardapio() {
 
     // 🔑 READ: Função para CARREGAR os pratos do restaurante logado
     const fetchPratos = async () => {
-    setLoading(true);
-    setError(null);
+        setLoading(true);
+        setError(null);
 
-    try {
-        const headers = getCnpjHeader();
+        try {
+            const headers = getCnpjHeader();
 
-        const response = await fetch(`${API_BASE_URL}/api/restaurante/prato`, {
+            const response = await fetch(`${API_BASE_URL}/api/restaurante/prato`, {
 
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                ...headers,
-            },
-        });
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...headers,
+                },
+            });
 
-        if (!response.ok) {
-            const errData = await response.json();
-            throw new Error(errData.error || 'Falha ao carregar pratos.');
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || 'Falha ao carregar pratos.');
+            }
+
+            const data = await response.json();
+            setPratos(data);
+        } catch (err) {
+            console.error("Erro ao buscar pratos:", err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
         }
-
-        const data = await response.json();
-        setPratos(data);
-    } catch (err) {
-        console.error("Erro ao buscar pratos:", err);
-        setError(err.message);
-    } finally {
-        setLoading(false);
-    }
-};
+    };
 
 
     // 🔑 UPDATE: Função para Abrir o Modal de Edição
@@ -92,6 +92,9 @@ export default function GerenciarCardapio() {
             const headers = getCnpjHeader();
             
             const pratoAtualizadoData = {
+                // Incluindo o ID no corpo da requisição é uma boa prática para PUT,
+                // mesmo que ele vá na URL.
+                id,
                 nome,
                 descricao,
                 preco: parseFloat(preco), 
@@ -100,8 +103,8 @@ export default function GerenciarCardapio() {
                 disponivel
             };
 
-            const response = await fetch(`${API_BASE_URL}/api/restaurante/prato`, {
-
+            // 🌟 CORREÇÃO 1: Incluindo o ID na URL para resolver o erro 404 (Not Found)
+            const response = await fetch(`${API_BASE_URL}/api/restaurante/prato/${id}`, {
 
                 method: 'PUT',
                 headers: {
@@ -112,8 +115,17 @@ export default function GerenciarCardapio() {
             });
 
             if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.error || 'Falha ao atualizar prato.');
+                // Se a API retornar uma resposta que não é JSON (o caso do 404/SyntaxError),
+                // o await response.json() pode falhar, mas a linha abaixo tenta tratar o erro padrão.
+                // Se a API estiver correta, ela deve retornar JSON.
+                const responseText = await response.text();
+                try {
+                    const errData = JSON.parse(responseText);
+                    throw new Error(errData.error || 'Falha ao atualizar prato.');
+                } catch (jsonError) {
+                    // Se não for JSON, lança o erro de status HTTP e o texto (para debug)
+                    throw new Error(`Status ${response.status}: ${responseText.substring(0, 100)}...`);
+                }
             }
 
             // Recarrega a lista, fecha o modal e limpa o estado de edição
@@ -128,6 +140,49 @@ export default function GerenciarCardapio() {
         }
     };
 
+    
+   // 🔑 DELETE: Função para Excluir um Prato
+const handleDelete = async (pratoId) => {
+    if (!window.confirm("Tem certeza que deseja excluir este prato? Esta ação é irreversível.")) {
+        return;
+    }
+
+    try {
+        const headers = getCnpjHeader();
+        
+        // 🌟 CORREÇÃO: Incluir o pratoId na URL para DELETE, assim como no PUT
+        const response = await fetch(`${API_BASE_URL}/api/restaurante/prato/${pratoId}`, {
+            method: 'DELETE',
+            headers: {
+                // Você só precisa do 'Authorization', mas manter o 'Content-Type' não faz mal.
+                // Na maioria das APIs DELETE, o body não é necessário, então podemos removê-lo.
+                'Content-Type': 'application/json',
+                ...headers,
+            },
+            // O body com o ID foi removido, pois o ID já está na URL.
+        });
+
+        if (!response.ok) {
+            // Tratamento de erro melhorado
+            const responseText = await response.text();
+            try {
+                const errData = JSON.parse(responseText);
+                throw new Error(errData.error || 'Falha ao excluir prato.');
+            } catch (jsonError) {
+                // Lança o erro de Status 404 e o texto da resposta (HTML)
+                throw new Error(`Status ${response.status}: O servidor retornou HTML. Rota DELETE incorreta?`);
+            }
+        }
+
+        await fetchPratos();
+        alert("Prato excluído com sucesso!");
+
+    } catch (err) {
+        alert(`Erro na exclusão: ${err.message}`);
+        console.error("Erro na exclusão:", err);
+    }
+};
+
 
     useEffect(() => {
         fetchPratos();
@@ -139,6 +194,7 @@ export default function GerenciarCardapio() {
         if (!isModalOpen || !pratoEmEdicao) return null;
 
         const handlePriceChange = (e) => {
+            // Permite vírgula ou ponto, convertendo para ponto para o valor numérico
             const value = e.target.value.replace(',', '.');
             setPratoEmEdicao(prev => ({ ...prev, preco: value }));
         };
