@@ -629,8 +629,8 @@ export default function GerenciarPerfil() {
             </div>
           </div>
         )}
-
         {/* Lista de Endereços Salvos */}
+        {/*
         <div className="perfil-card">
           <h2>Meus Endereços</h2>
           
@@ -676,6 +676,9 @@ export default function GerenciarPerfil() {
           )}
         </div>
       </main>
+ </div>
+*/}
+</main>
     </div>
   );
 }

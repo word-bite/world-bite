@@ -1,112 +1,100 @@
 // backend/middlewares/authMiddleware.js
 const { PrismaClient } = require('@prisma/client');
-const jwt = require('jsonwebtoken');
 const prisma = new PrismaClient();
 
 // =======================================================
-// Middleware para RESTAURANTES (mantive sua lógica original)
+// Middleware para RESTAURANTES 
 // =======================================================
 const authRestaurante = async (req, res, next) => {
-  const authHeader = req.headers['authorization'] || req.headers['Authorization'];
+  const authHeader = req.headers['authorization'] || req.headers['Authorization'];
 
-  if (!authHeader || !authHeader.startsWith('CNPJ ')) {
-    return res.status(401).json({ error: 'Acesso negado. CNPJ não fornecido no cabeçalho.' });
-  }
+  if (!authHeader || !authHeader.startsWith('CNPJ ')) {
+    return res.status(401).json({ error: 'Acesso negado. CNPJ não fornecido no cabeçalho.' });
+  }
 
-  const cnpjComFormato = authHeader.split(' ')[1];
-  if (!cnpjComFormato) {
-    return res.status(401).json({ error: 'CNPJ inválido.' });
-  }
+  const cnpjComFormato = authHeader.split(' ')[1];
+  if (!cnpjComFormato) {
+    return res.status(401).json({ error: 'CNPJ inválido.' });
+  }
 
-  const cnpjLimpo = cnpjComFormato.replace(/[^\d]/g, '');
+  const cnpjLimpo = cnpjComFormato.replace(/[^\d]/g, '');
 
-  try {
-    const restaurante = await prisma.restaurante.findUnique({
-      where: { cnpj: cnpjLimpo },
-      select: { id: true, nome: true },
-    });
+  try {
+    const restaurante = await prisma.restaurante.findUnique({
+      where: { cnpj: cnpjLimpo },
+      select: { id: true, nome: true },
+    });
 
-    if (!restaurante) {
-      return res.status(401).json({ error: 'Restaurante não encontrado.' });
-    }
+    if (!restaurante) {
+      return res.status(401).json({ error: 'Restaurante não encontrado.' });
+    }
 
-    req.restauranteId = restaurante.id;
-    req.restauranteNome = restaurante.nome;
-    return next();
-  } catch (error) {
-    console.error('authRestaurante error:', error);
-    return res.status(500).json({ error: 'Erro interno do servidor' });
-  }
+    req.restauranteId = restaurante.id;
+    req.restauranteNome = restaurante.nome;
+    return next();
+  } catch (error) {
+    console.error('authRestaurante error:', error);
+    return res.status(500).json({ error: 'Erro interno do servidor' });
+  }
 };
 
 // =======================================================
 // Middleware para USUÁRIOS (Clientes)
-// Espera header: Authorization: Bearer <JWT>
-// Foi ampliado para aceitar id numérico OU email no payload.
+// Usando token simples do tipo: token_<userId>_<timestamp>
 // =======================================================
 const authUsuario = async (req, res, next) => {
-  const authHeader = req.headers['authorization'] || req.headers['Authorization'];
+  const authHeader = req.headers['authorization'] || req.headers['Authorization'];
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ sucesso: false, erro: 'Token não fornecido' });
-  }
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ sucesso: false, erro: 'Token não fornecido' });
+  }
 
-  const token = authHeader.split(' ')[1];
-  if (!token) {
-    return res.status(401).json({ sucesso: false, erro: 'Token inválido' });
-  }
+  const token = authHeader.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ sucesso: false, erro: 'Token inválido' });
+  }
 
-  if (!process.env.JWT_SECRET) {
-    console.error('JWT_SECRET não definido');
-    return res.status(500).json({ sucesso: false, erro: 'Erro interno do servidor' });
-  }
+  try {
+    // Dividir token pelo "_" para extrair userId
+    const tokenParts = token.split('_');
 
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    if (tokenParts.length < 2) {
+      return res.status(401).json({ sucesso: false, erro: 'Token inválido' });
+    }
 
-    // DEBUG: log do payload em dev
-    if (process.env.NODE_ENV !== 'production') {
-      console.debug('[authUsuario] token payload:', payload);
-    }
+    const userId = parseInt(tokenParts[1]);
+    if (isNaN(userId)) {
+      return res.status(401).json({ sucesso: false, erro: 'Token inválido' });
+    }
 
-    // tenta várias chaves comuns que podem identificar o usuário no token
-    let identifier = payload.id ?? payload.sub ?? payload.userId ?? payload.usuarioId ?? payload.user_id ?? payload.email;
+    // ======= DEBUG LOGS =======
+    console.log('Authorization header recebido:', authHeader);
+    console.log('Token extraído:', token);
+    console.log('Token partes:', tokenParts);
+    console.log('UserId extraído do token:', userId);
+    // ===========================
 
-    if (!identifier) {
-      return res.status(400).json({ sucesso: false, erro: 'ID inválido' });
-    }
+    // Buscar usuário no banco
+    const usuario = await prisma.usuario.findUnique({
+      where: { id: userId },
+    });
 
-    let usuario = null;
+    console.log('Usuário encontrado no banco:', usuario); // DEBUG
 
-    // se identifier for email, busca por email
-    if (typeof identifier === 'string' && identifier.includes('@')) {
-      usuario = await prisma.usuario.findUnique({
-        where: { email: identifier }
-      });
-    } else if (!isNaN(parseInt(identifier, 10))) {
-      // se for numérico, busca por id
-      usuario = await prisma.usuario.findUnique({
-        where: { id: parseInt(identifier, 10) }
-      });
-    } else {
-      // caso especial: identifier não numérico nem email -> erro claro
-      return res.status(400).json({ sucesso: false, erro: 'ID inválido' });
-    }
+    if (!usuario || (typeof usuario.ativo !== 'undefined' && !usuario.ativo)) {
+      return res.status(401).json({ sucesso: false, erro: 'Usuário inválido ou desativado' });
+    }
 
-    if (!usuario || (typeof usuario.ativo !== 'undefined' && !usuario.ativo)) {
-      return res.status(401).json({ sucesso: false, erro: 'Usuário inválido ou desativado' });
-    }
-
-    req.userId = usuario.id;
-    req.user = usuario;
-    return next();
-  } catch (error) {
-    console.error('authUsuario error:', error.message || error);
-    return res.status(401).json({ sucesso: false, erro: 'Token inválido ou expirado' });
-  }
+    req.userId = usuario.id;
+    req.user = usuario;
+    return next();
+  } catch (error) {
+    console.error('authUsuario error:', error.message || error);
+    return res.status(500).json({ sucesso: false, erro: 'Erro interno no servidor' });
+  }
 };
 
 module.exports = {
-  authRestaurante,
-  authUsuario,
+  authRestaurante,
+  authUsuario,
 };

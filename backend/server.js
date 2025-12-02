@@ -10,6 +10,7 @@ require('dotenv').config();
 // Importar o cliente do Prisma
 const prisma = require('./config/database.js');
 
+
 // Importar o serviço de email
 const emailService = require('./services/emailService');
 
@@ -398,7 +399,7 @@ app.post('/api/usuarios/login', async (req, res) => {
         res.json({
             sucesso: true,
             mensagem: 'Login realizado com sucesso',
-            token: `token_${usuario.id}_${Date.now()}`, // Em produção, use JWT real
+            token: `token_${usuario.id}_t${Date.now()}`, // Em produção, use JWT real
             usuario: usuarioAtualizado
         });
 
@@ -1156,3 +1157,7 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
+
+
+const enderecosRoutes = require('./routes/enderecos');
+app.use('/api/usuarios/enderecos', enderecosRoutes);

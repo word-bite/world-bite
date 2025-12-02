@@ -52,7 +52,7 @@ router.post('/', authRestaurante, async (req, res) => {
     
     const restauranteId = req.restauranteId;
     
-    // 1. Coleta os dados. Note que 'disponivel' é opcional e será true por padrão no Prisma.
+    // 1. Coleta os dados.'disponivel' é opcional e será true por padrão no Prisma.
     const { nome, descricao, preco, categoria, urlImagem } = req.body;
     
     if (!nome || !descricao || !preco || !categoria) {
